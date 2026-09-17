@@ -24,7 +24,8 @@
         .nav-buttons { display: flex; background: rgba(0,0,0,0.6); padding: 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); gap: 4px; }
         .btn { border: none; outline: none; padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; color: #9ca3af; background: transparent; transition: all 0.2s; }
         .btn-active, .btn-primary { background: #a855f7; color: white; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3); }
-        .btn-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-danger { background: rgba(239, 68, 68, 0.8); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+        .btn-danger:hover { background: #dc2626; }
 
         main { flex: 1; display: flex; padding: 16px; gap: 16px; overflow: hidden; }
         .player-section { flex: 1; display: flex; flex-direction: column; gap: 12px; }
@@ -36,16 +37,25 @@
         .sidebar-tab { flex: 1; padding: 8px; border-radius: 8px; border: none; font-size: 11px; font-weight: bold; color: #9ca3af; background: transparent; cursor: pointer; }
         .sidebar-tab.active { background: #a855f7; color: white; }
 
-        /* Compact & Organized Album Grid (3 Columns) */
+        /* Compact Organized Album Grid */
         .album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; overflow-y: auto; flex: 1; align-content: start; }
         .album-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; transition: all 0.2s; }
         .album-card:hover { border-color: #a855f7; background: rgba(168,85,247,0.15); transform: translateY(-2px); }
         .album-thumb { width: 42px; height: 42px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #a855f7); display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 8px rgba(168,85,247,0.3); }
 
-        .control-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 8px; }
-        .stat-card { background: rgba(0,0,0,0.4); padding: 6px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .stat-val { font-size: 13px; font-weight: bold; color: #c084fc; font-family: monospace; }
-        .stat-lbl { font-size: 8px; color: #6b7280; text-transform: uppercase; margin-top: 2px; }
+        /* High-Visibility Interactive Control Grid */
+        .control-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 8px; }
+        .control-card { background: rgba(0,0,0,0.6); padding: 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; height: 58px; }
+        .control-card-btn { cursor: pointer; transition: all 0.2s; }
+        .control-card-btn:hover { border-color: #a855f7; background: rgba(168,85,247,0.15); }
+        .control-card-danger:hover { border-color: #f87171; background: rgba(239,68,68,0.2); }
+        
+        .stepper-box { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 4px; }
+        .step-btn { width: 24px; height: 24px; border-radius: 6px; background: #a855f7; color: white; border: none; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .step-btn:hover { background: #9333ea; }
+        .step-val { font-size: 13px; font-weight: bold; color: #c084fc; font-family: monospace; }
+        
+        .stat-lbl { font-size: 8px; color: #9ca3af; text-transform: uppercase; font-weight: bold; margin-top: 4px; }
 
         .track-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
         .track-item { padding: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05); }
@@ -113,14 +123,22 @@
                 </div>
             </div>
 
-            <!-- Master Controls Panel -->
-            <div class="glass-panel" style="padding: 12px 16px; border-radius: 14px; display: flex; flex-direction: column; gap: 8px;">
+            <!-- Master Playback Control Panel -->
+            <div class="glass-panel" style="padding: 12px 16px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; gap: 6px;">
-                        <button onclick="togglePlayPause()" class="btn btn-primary focusable" style="width: 36px; height: 36px; padding: 0;" title="Play / Pause">▶</button>
-                        <button onclick="stopPlayback()" class="btn btn-danger focusable" style="width: 36px; height: 36px; padding: 0;" title="Stop Playback">⏹</button>
-                        <button onclick="playNextTrack()" class="btn glass-card focusable" style="width: 36px; height: 36px; padding: 0;" title="Next Track">⏭</button>
-                        <button onclick="restartTrack()" class="btn glass-card focusable" style="width: 36px; height: 36px; padding: 0;" title="Restart Song">🔄</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="togglePlayPause()" class="btn btn-primary focusable" style="height: 38px; padding: 0 16px; font-size: 12px; display: flex; align-items: center; gap: 6px;" title="Play / Pause">
+                            ▶ PLAY
+                        </button>
+                        <button onclick="stopPlayback()" class="btn btn-danger focusable" style="height: 38px; padding: 0 16px; font-size: 12px; display: flex; align-items: center; gap: 6px;" title="Stop Playback">
+                            ⏹ STOP
+                        </button>
+                        <button onclick="playNextTrack()" class="btn btn-primary focusable" style="height: 38px; padding: 0 16px; font-size: 12px; display: flex; align-items: center; gap: 6px;" title="Next Track">
+                            ⏭ NEXT
+                        </button>
+                        <button onclick="restartTrack()" class="btn glass-card focusable" style="height: 38px; padding: 0 14px; font-size: 12px; display: flex; align-items: center; gap: 6px;" title="Restart Song">
+                            🔄 RESTART
+                        </button>
                     </div>
 
                     <div class="text-center" style="flex: 1; padding: 0 12px;">
@@ -128,45 +146,44 @@
                         <p id="nowPlayingArtist" class="text-purple" style="font-size: 10px;">Select files to start</p>
                     </div>
 
-                    <div style="display: flex; gap: 4px;">
-                        <button onclick="playSFX('applause')" class="btn glass-card focusable">👏 Cheer</button>
-                        <button onclick="playSFX('fanfare')" class="btn glass-card focusable">🎺 Fanfare</button>
+                    <div style="display: flex; gap: 6px;">
+                        <button onclick="playSFX('applause')" class="btn glass-card focusable" style="height: 38px;">👏 Cheer</button>
+                        <button onclick="playSFX('fanfare')" class="btn glass-card focusable" style="height: 38px;">🎺 Fanfare</button>
                     </div>
                 </div>
 
+                <!-- High-Visibility Interactive Control Cards -->
                 <div class="control-grid">
-                    <div class="stat-card">
-                        <div class="stat-val">
-                            <button onclick="changePitch(-1)" class="btn focusable" style="padding:1px 5px;">-</button> 
-                            <span id="pitchDisplay">0</span> 
-                            <button onclick="changePitch(1)" class="btn focusable" style="padding:1px 5px;">+</button>
+                    <div class="control-card">
+                        <div class="stepper-box">
+                            <button onclick="changePitch(-1)" class="step-btn focusable">-</button> 
+                            <span id="pitchDisplay" class="step-val">0</span> 
+                            <button onclick="changePitch(1)" class="step-btn focusable">+</button>
                         </div>
                         <div class="stat-lbl">Key Pitch</div>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-val">
-                            <button onclick="cycleVocalMode()" id="vocalModeBtn" class="btn focusable" style="font-size:9px; padding:2px 4px; width:100%;">STEREO</button>
-                        </div>
+                    <div onclick="cycleVocalMode()" class="control-card control-card-btn focusable" style="justify-content: center;">
+                        <span id="vocalModeBtn" style="font-size: 12px; font-weight: bold; color: #c084fc;">STEREO</span>
                         <div class="stat-lbl">Vocal Mode</div>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-val">
-                            <button onclick="changeTempo(-0.1)" class="btn focusable" style="padding:1px 5px;">-</button> 
-                            <span id="tempoDisplay">1.0x</span> 
-                            <button onclick="changeTempo(0.1)" class="btn focusable" style="padding:1px 5px;">+</button>
+                    <div class="control-card">
+                        <div class="stepper-box">
+                            <button onclick="changeTempo(-0.1)" class="step-btn focusable">-</button> 
+                            <span id="tempoDisplay" class="step-val">1.0x</span> 
+                            <button onclick="changeTempo(0.1)" class="step-btn focusable">+</button>
                         </div>
                         <div class="stat-lbl">Speed</div>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-val" id="lrcStatus">NO LRC</div>
-                        <div class="stat-lbl">Lyrics Status</div>
+                    <div onclick="toggleLyricsStatus()" class="control-card control-card-btn focusable" style="justify-content: center;">
+                        <span id="lrcStatus" style="font-size: 12px; font-weight: bold; color: #c084fc;">NO LRC</span>
+                        <div class="stat-lbl">Lyrics Sync</div>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-val"><button onclick="clearQueue()" class="btn btn-danger focusable" style="font-size:9px; padding:2px 4px;">Reset</button></div>
+                    <div onclick="clearQueue()" class="control-card control-card-btn control-card-danger focusable" style="justify-content: center;">
+                        <span style="font-size: 12px; font-weight: bold; color: #f87171;">RESET</span>
                         <div class="stat-lbl">Clear Queue</div>
                     </div>
                 </div>
@@ -185,12 +202,16 @@
                 <input type="file" id="bundlePicker" accept="video/*,audio/*,.lrc" multiple webkitdirectory directory onchange="loadBundleFolder(event)" style="display: none;">
                 <input type="file" id="mediaFilePicker" accept="video/*,audio/*,.lrc" multiple onchange="loadPickedFiles(event)" style="display: none;">
 
+                <!-- Action Bar with Added Reset Library Button -->
                 <div style="display: flex; gap: 6px;">
                     <button onclick="document.getElementById('bundlePicker').click()" class="btn btn-primary focusable" style="flex: 1; padding: 10px;">
-                        📁 Folder Indexer (Video + .LRC)
+                        📁 Folder Indexer
                     </button>
                     <button onclick="document.getElementById('mediaFilePicker').click()" class="btn glass-card focusable" style="padding: 10px;">
-                        📄 Add Files (+ .LRC)
+                        📄 Add Files
+                    </button>
+                    <button onclick="resetLibraryCatalog()" class="btn btn-danger focusable" style="padding: 10px; font-size: 10px;" title="Clear song catalog list for new folder upload (keeps active queue)">
+                        🗑️ Reset Library
                     </button>
                 </div>
 
@@ -340,6 +361,11 @@
                 document.getElementById('authPinInput').value = targetPin;
             }
             
+            const storedCatalog = localStorage.getItem('lux_catalog_meta');
+            if (storedCatalog) {
+                try { catalog = JSON.parse(storedCatalog); } catch(e) {}
+            }
+
             renderQRCodes();
             renderPlaylist();
             setupAndroidTVRemoteSupport();
@@ -360,10 +386,16 @@
                     tracks = e.data.queue;
                     renderPlaylist();
                     filterCatalog(document.getElementById('hostSearchInput').value);
+                    if (document.getElementById('remoteSearchInput')) {
+                        filterRemoteCatalog(document.getElementById('remoteSearchInput').value);
+                    }
                 } else if (e.data.type === 'CATALOG_UPDATE') {
                     catalog = e.data.catalog;
+                    localStorage.setItem('lux_catalog_meta', JSON.stringify(catalog));
                     filterCatalog(document.getElementById('hostSearchInput').value);
-                    filterRemoteCatalog(document.getElementById('remoteSearchInput') ? document.getElementById('remoteSearchInput').value : '');
+                    if (document.getElementById('remoteSearchInput')) {
+                        filterRemoteCatalog(document.getElementById('remoteSearchInput').value);
+                    }
                 } else if (e.data.type === 'SYNC_ROOM_PIN') {
                     roomId = e.data.roomId;
                     document.getElementById('roomIdDisplay').innerText = roomId;
@@ -376,6 +408,21 @@
             appChannel.postMessage({ type: 'SYNC_ROOM_PIN', roomId: roomId });
         });
 
+        // Reset Library Catalog (Clears uploaded songs list, keeps active room queue intact)
+        function resetLibraryCatalog() {
+            if (catalog.length === 0) return;
+            if (confirm("Reset song catalog list? This will clear the uploaded songs list so you can upload a new folder. Currently queued songs will remain in the playlist.")) {
+                catalog = [];
+                localMediaFiles.clear();
+                localLrcFiles.clear();
+                localStorage.removeItem('lux_catalog_meta');
+                
+                filterCatalog('');
+                renderAlbums();
+                broadcastCatalog();
+            }
+        }
+
         function verifyRoomPin() {
             const pinInput = document.getElementById('authPinInput').value.trim();
             const errorEl = document.getElementById('authErrorMsg');
@@ -383,7 +430,7 @@
             if (pinInput === roomId) {
                 errorEl.classList.add('hidden');
                 switchView('remote');
-                renderRemoteCatalog(catalog);
+                filterRemoteCatalog('');
             } else {
                 errorEl.innerText = `Incorrect PIN (${pinInput})! Target PIN is ${roomId}`;
                 errorEl.classList.remove('hidden');
@@ -407,6 +454,7 @@
             document.getElementById('remoteQueueViewContainer').classList.toggle('hidden', tab !== 'queue');
             document.getElementById('remoteTabSearchBtn').className = tab === 'search' ? "btn btn-primary" : "btn glass-card";
             document.getElementById('remoteTabQueueBtn').className = tab === 'queue' ? "btn btn-primary" : "btn glass-card";
+            if (tab === 'search') filterRemoteCatalog(document.getElementById('remoteSearchInput').value);
         }
 
         function typeRemoteKey(char) {
@@ -423,7 +471,6 @@
 
         function filterRemoteCatalog(query) {
             const q = query.toLowerCase();
-            // Filter out songs already in the room queue
             const availableCatalog = catalog.filter(c => !tracks.some(t => t.id === c.id));
             const filtered = availableCatalog.filter(c => c.title.toLowerCase().includes(q) || c.artist.toLowerCase().includes(q));
             renderRemoteCatalog(filtered);
@@ -442,7 +489,7 @@
                     <button onclick="queueCatalogTrack('${item.id}')" class="btn btn-primary" style="padding: 4px 8px; font-size: 9px;">+ Add to Queue</button>
                 </div>`;
             });
-            container.innerHTML = html || '<p class="text-muted text-center" style="padding: 20px;">No matching available songs found</p>';
+            container.innerHTML = html || '<p class="text-muted text-center" style="padding: 20px;">No available songs found</p>';
         }
 
         function setupAndroidTVRemoteSupport() {
@@ -481,7 +528,6 @@
             filterCatalog('');
         }
 
-        // Folder Upload Indexer
         async function loadBundleFolder(event) {
             const files = Array.from(event.target.files);
             if (!files.length) return;
@@ -529,7 +575,6 @@
             alert(`Folder Loaded! Indexed ${catalog.length} Media Songs & ${localLrcFiles.size} .LRC Files.`);
         }
 
-        // File Input Upload Engine (Auto-pairs Samename .LRC files)
         function loadPickedFiles(event) {
             const files = Array.from(event.target.files);
             if (!files.length) return;
@@ -626,6 +671,13 @@
             }, 100);
         }
 
+        function toggleLyricsStatus() {
+            const statusEl = document.getElementById('lrcStatus');
+            if (statusEl.innerText === "NO LRC") {
+                alert("Please upload a .LRC file alongside your video file to enable lyrics sync.");
+            }
+        }
+
         function renderCatalog(items) {
             const container = document.getElementById('catalogList');
             let html = '';
@@ -642,7 +694,6 @@
             container.innerHTML = html || '<p class="text-muted text-center" style="padding: 20px;">No available songs found</p>';
         }
 
-        // Compact Organized Album Grid Render
         function renderAlbums() {
             const container = document.getElementById('hostAlbumsView');
             const artists = {};
@@ -668,7 +719,6 @@
 
         function filterCatalog(query) {
             const q = query.toLowerCase();
-            // Automatically clear songs from the search list if already added to the active queue
             const availableCatalog = catalog.filter(c => !tracks.some(t => t.id === c.id));
             const filtered = availableCatalog.filter(c => c.title.toLowerCase().includes(q) || c.artist.toLowerCase().includes(q));
             renderCatalog(filtered);
@@ -682,7 +732,6 @@
             renderPlaylist();
             broadcastQueue();
 
-            // Refresh search lists to instantly clear the added track
             filterCatalog(document.getElementById('hostSearchInput').value);
             if (document.getElementById('remoteSearchInput')) {
                 filterRemoteCatalog(document.getElementById('remoteSearchInput').value);
@@ -914,7 +963,11 @@
         }
 
         function broadcastQueue() { appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks }); }
-        function broadcastCatalog() { appChannel.postMessage({ type: 'CATALOG_UPDATE', catalog: catalog }); }
+        
+        function broadcastCatalog() { 
+            localStorage.setItem('lux_catalog_meta', JSON.stringify(catalog));
+            appChannel.postMessage({ type: 'CATALOG_UPDATE', catalog: catalog }); 
+        }
 
         function renderPlaylist() {
             const hostContainer = document.getElementById('hostQueueView');
