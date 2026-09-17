@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LUX KARAOKE ULTIMATE - Commercial Enterprise Suite</title>
+    <title>LUX KARAOKE PRO - Enterprise Master Edition</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#05070a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: #05070a; color: #f3f4f6; height: 100vh; width: 100vw; overflow: hidden; display: flex; flex-direction: column; user-select: none; }
@@ -57,8 +59,8 @@
         <div class="logo-box">
             <div class="logo-icon">👑</div>
             <div>
-                <h1 style="font-size: 16px; font-weight: 800; letter-spacing: 1px;">LUX KARAOKE ULTIMATE</h1>
-                <p class="text-muted">Commercial All-In-One Suite</p>
+                <h1 style="font-size: 16px; font-weight: 800; letter-spacing: 1px;">LUX KARAOKE PRO</h1>
+                <p class="text-muted">Master Commercial Enterprise Suite</p>
             </div>
         </div>
 
@@ -79,7 +81,7 @@
         </div>
     </header>
 
-    <!-- HOST CONSOLE -->
+    <!-- HOST CONSOLE VIEW -->
     <main id="view-host">
         <section class="player-section">
             <div class="video-box">
@@ -87,7 +89,7 @@
                 <div id="idleState" class="text-center">
                     <div style="font-size: 44px; margin-bottom: 8px;">💿</div>
                     <h3 style="font-size: 16px; font-weight: bold;">System Ready</h3>
-                    <p class="text-muted">Load local media files from HDD or select a queued song</p>
+                    <p class="text-muted">Load local files from HDD or select a queued song</p>
                 </div>
 
                 <!-- Singer Pitch & Score Overlay -->
@@ -97,7 +99,7 @@
                 </div>
             </div>
 
-            <!-- Master Playback Control Panel -->
+            <!-- Playback Control Panel -->
             <div class="glass-panel" style="padding: 12px 16px; border-radius: 14px; display: flex; flex-direction: column; gap: 8px;">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <div style="display: flex; gap: 6px;">
@@ -111,7 +113,6 @@
                         <p id="nowPlayingArtist" class="text-purple" style="font-size: 10px;">Select files to start</p>
                     </div>
 
-                    <!-- Sound Effects Triggers -->
                     <div style="display: flex; gap: 4px;">
                         <button onclick="playSFX('applause')" class="btn glass-card focusable">👏 Cheer</button>
                         <button onclick="playSFX('fanfare')" class="btn glass-card focusable">🎺 Fanfare</button>
@@ -119,22 +120,32 @@
                     </div>
                 </div>
 
-                <!-- Advanced Audio Controls & Vocal Eliminator Grid -->
+                <!-- Control Grid (Pitch, Vocal Remover, Speed [- and +]) -->
                 <div class="control-grid">
                     <div class="stat-card">
-                        <div class="stat-val"><button onclick="changePitch(-1)" class="btn focusable" style="padding:1px 5px;">-</button> <span id="pitchDisplay">0</span> <button onclick="changePitch(1)" class="btn focusable" style="padding:1px 5px;">+</button></div>
+                        <div class="stat-val">
+                            <button onclick="changePitch(-1)" class="btn focusable" style="padding:1px 5px;">-</button> 
+                            <span id="pitchDisplay">0</span> 
+                            <button onclick="changePitch(1)" class="btn focusable" style="padding:1px 5px;">+</button>
+                        </div>
                         <div class="stat-lbl">Key Pitch</div>
                     </div>
 
-                    <!-- Audio Channel / Vocal Remover Selector -->
                     <div class="stat-card">
-                        <div class="stat-val"><button onclick="cycleVocalMode()" id="vocalModeBtn" class="btn focusable" style="font-size:9px; padding:2px 4px; width:100%;">STEREO</button></div>
+                        <div class="stat-val">
+                            <button onclick="cycleVocalMode()" id="vocalModeBtn" class="btn focusable" style="font-size:9px; padding:2px 4px; width:100%;">STEREO</button>
+                        </div>
                         <div class="stat-lbl">Vocal Mode</div>
                     </div>
 
+                    <!-- Speed Control (- / +) -->
                     <div class="stat-card">
-                        <div class="stat-val" id="tempoDisplay">1.0x</div>
-                        <div class="stat-lbl"><button onclick="changeTempo(0.1)" class="btn focusable" style="font-size:9px; padding:2px 4px;">Speed</button></div>
+                        <div class="stat-val">
+                            <button onclick="changeTempo(-0.1)" class="btn focusable" style="padding:1px 5px;">-</button> 
+                            <span id="tempoDisplay">1.0x</span> 
+                            <button onclick="changeTempo(0.1)" class="btn focusable" style="padding:1px 5px;">+</button>
+                        </div>
+                        <div class="stat-lbl">Speed</div>
                     </div>
 
                     <div class="stat-card">
@@ -159,10 +170,16 @@
 
             <div id="hostSearchView" style="padding: 12px; display: flex; flex-direction: column; gap: 8px;">
                 <input type="file" id="mediaPicker" accept="video/*,audio/*" multiple onchange="loadPickedFiles(event)" style="display: none;">
+                <input type="file" id="lrcPicker" accept=".lrc" onchange="loadLrcFile(event)" style="display: none;">
                 
-                <button onclick="document.getElementById('mediaPicker').click()" class="btn btn-primary focusable" style="padding: 10px;">
-                    📂 Select Local Media Files (MP4/MKV)
-                </button>
+                <div style="display: flex; gap: 6px;">
+                    <button onclick="document.getElementById('mediaPicker').click()" class="btn btn-primary focusable" style="flex: 1; padding: 10px;">
+                        📂 Add Media Files
+                    </button>
+                    <button onclick="document.getElementById('lrcPicker').click()" class="btn glass-card focusable" style="padding: 10px;">
+                        📜 Load .LRC Lyrics
+                    </button>
+                </div>
 
                 <button onclick="selectAndIndexFolder()" class="btn glass-card focusable" style="padding: 8px;">
                     📁 Scan HDD Folder (Desktop Chrome/Edge)
@@ -242,15 +259,18 @@
         let roomId = Math.floor(1000 + Math.random() * 9000).toString();
         let currentPitch = 0, currentSpeed = 1.0;
         
-        // Web Audio API Node Pipeline (Vocal Eliminator & Audio Mixer)
-        let audioCtx, mediaSourceNode, splitterNode, mergerNode, gainNodeMusic, micGainNode;
-        let vocalModeState = 0; // 0 = STEREO, 1 = LEFT_ONLY (Vocal Off), 2 = RIGHT_ONLY, 3 = CENTER_CUT (Phase Cancel)
+        // Web Audio API Pipeline & LRC Lyrics Engine
+        let audioCtx, mediaSourceNode, splitterNode, mergerNode, gainNodeMusic;
+        let vocalModeState = 0;
+        let currentLrcData = [];
+        let lyricsTimer = null;
 
-        const appChannel = new BroadcastChannel('lux_karaoke_ultimate_channel');
+        const appChannel = new BroadcastChannel('lux_karaoke_master_channel');
 
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('roomIdDisplay').innerText = roomId;
             renderPlaylist();
+            setupKeyboardShortcuts();
 
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW:', err));
@@ -260,59 +280,117 @@
                 if (e.data.type === 'QUEUE_UPDATE') {
                     tracks = e.data.queue;
                     renderPlaylist();
+                } else if (e.data.type === 'LYRICS_UPDATE') {
+                    const lyricsEl = document.getElementById('lyricsDisplay');
+                    if (lyricsEl) lyricsEl.innerText = e.data.text;
                 }
             };
         });
 
-        // Initialize Web Audio Engine for Advanced Vocal Control
+        // Global Keyboard Hotkeys
+        function setupKeyboardShortcuts() {
+            window.addEventListener('keydown', (e) => {
+                if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+                
+                if (e.code === 'Space') { e.preventDefault(); togglePlayPause(); }
+                else if (e.code === 'KeyN') { e.preventDefault(); playNextTrack(); }
+                else if (e.code === 'KeyR') { e.preventDefault(); restartTrack(); }
+                else if (e.code === 'ArrowUp') { e.preventDefault(); changePitch(1); }
+                else if (e.code === 'ArrowDown') { e.preventDefault(); changePitch(-1); }
+            });
+        }
+
+        // Real-Time LRC Lyrics Parser
+        function parseLRC(lrcText) {
+            const lines = lrcText.split('\n');
+            const result = [];
+            const timeRegEx = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
+
+            lines.forEach(line => {
+                const match = timeRegEx.exec(line);
+                if (match) {
+                    const minutes = parseInt(match[1], 10);
+                    const seconds = parseInt(match[2], 10);
+                    const milliseconds = parseInt(match[3].padEnd(3, '0'), 10);
+                    const timeInSeconds = minutes * 60 + seconds + milliseconds / 1000;
+                    const text = line.replace(timeRegEx, '').trim();
+                    if (text) result.push({ time: timeInSeconds, text: text });
+                }
+            });
+            return result.sort((a, b) => a.time - b.time);
+        }
+
+        function loadLrcFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentLrcData = parseLRC(e.target.result);
+                alert(`Loaded .LRC Lyrics file successfully! (${currentLrcData.length} lines indexed)`);
+            };
+            reader.readAsText(file);
+        }
+
+        function startLyricsSync() {
+            if (lyricsTimer) clearInterval(lyricsTimer);
+            const player = document.getElementById('drivePlayer');
+
+            lyricsTimer = setInterval(() => {
+                if (!player || player.paused) return;
+                const currentTime = player.currentTime;
+                let activeLine = "♪ (Instrumental / Performance) ♪";
+
+                if (currentLrcData.length > 0) {
+                    for (let i = 0; i < currentLrcData.length; i++) {
+                        if (currentTime >= currentLrcData[i].time) {
+                            activeLine = currentLrcData[i].text;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                document.getElementById('lyricsDisplay').innerText = activeLine;
+                appChannel.postMessage({ type: 'LYRICS_UPDATE', text: activeLine });
+            }, 100);
+        }
+
+        // Web Audio Setup for Vocal Switching & Tuning
         function initAudioPipeline() {
             if (audioCtx) return;
             const videoEl = document.getElementById('drivePlayer');
-            
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             mediaSourceNode = audioCtx.createMediaElementSource(videoEl);
-            
             splitterNode = audioCtx.createChannelSplitter(2);
             mergerNode = audioCtx.createChannelMerger(2);
             gainNodeMusic = audioCtx.createGain();
 
-            // Connect Pipeline: Video -> Splitter -> Merger -> Music Volume -> Output
             mediaSourceNode.connect(splitterNode);
-
-            // Default Stereo Connection
-            splitterNode.connect(mergerNode, 0, 0); // Left to Left
-            splitterNode.connect(mergerNode, 1, 1); // Right to Right
-
+            splitterNode.connect(mergerNode, 0, 0);
+            splitterNode.connect(mergerNode, 1, 1);
             mergerNode.connect(gainNodeMusic);
             gainNodeMusic.connect(audioCtx.destination);
         }
 
-        // Cycle Vocal Modes (Dual Track Switching + Center Channel Elimination)
         function cycleVocalMode() {
             initAudioPipeline();
             vocalModeState = (vocalModeState + 1) % 4;
             const btn = document.getElementById('vocalModeBtn');
-
-            // Disconnect current routes
             splitterNode.disconnect();
 
             if (vocalModeState === 0) {
-                // STEREO (Full Music + Vocals)
                 splitterNode.connect(mergerNode, 0, 0);
                 splitterNode.connect(mergerNode, 1, 1);
                 btn.innerText = "STEREO";
             } else if (vocalModeState === 1) {
-                // LEFT CHANNEL ONLY (Common Karaoke Track 1: Instrumental Only)
                 splitterNode.connect(mergerNode, 0, 0);
                 splitterNode.connect(mergerNode, 0, 1);
-                btn.innerText = "MUSIC ONLY (L)";
+                btn.innerText = "MUSIC (L)";
             } else if (vocalModeState === 2) {
-                // RIGHT CHANNEL ONLY (Common Karaoke Track 2: Lead Vocal Track)
                 splitterNode.connect(mergerNode, 1, 0);
                 splitterNode.connect(mergerNode, 1, 1);
-                btn.innerText = "VOCAL ONLY (R)";
+                btn.innerText = "VOCAL (R)";
             } else if (vocalModeState === 3) {
-                // CENTER CHANNEL VOCAL CUT (Phase Cancellation for Standard Stereo Songs)
                 btn.innerText = "CENTER CUT";
                 setVocalSuppression(0.8);
             }
@@ -320,12 +398,24 @@
 
         function setVocalSuppression(amount) {
             if (!audioCtx) initAudioPipeline();
-            // Inverts center channel frequencies where lead vocals are panned
             gainNodeMusic.gain.value = 1.0 - (amount * 0.3);
         }
 
         function setMusicVol(val) {
             if (gainNodeMusic) gainNodeMusic.gain.value = val;
+        }
+
+        // Dual-Direction Speed Adjustment (- / +)
+        function changeTempo(delta) {
+            currentSpeed = Math.max(0.5, Math.min(1.5, Math.round((currentSpeed + delta) * 10) / 10));
+            document.getElementById('tempoDisplay').innerText = `${currentSpeed.toFixed(1)}x`;
+            const player = document.getElementById('drivePlayer');
+            if (player) player.playbackRate = currentSpeed;
+        }
+
+        function changePitch(delta) {
+            currentPitch += delta;
+            document.getElementById('pitchDisplay').innerText = currentPitch > 0 ? `+${currentPitch}` : currentPitch;
         }
 
         function switchView(viewName) {
@@ -354,7 +444,7 @@
                 const id = `local_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
                 localMediaFiles.set(id, file);
                 let cleanName = file.name.substring(0, file.name.lastIndexOf('.'));
-                let artist = "Device Storage", title = cleanName;
+                let artist = "Device File", title = cleanName;
                 if (cleanName.includes(' - ')) {
                     const parts = cleanName.split(' - ');
                     artist = parts[0].trim();
@@ -368,7 +458,7 @@
 
         async function selectAndIndexFolder() {
             if (!('showDirectoryPicker' in window)) {
-                alert("Folder scanning requires Chrome/Edge Desktop.");
+                alert("Folder scanning works on Chrome/Edge Desktop.");
                 return;
             }
             try {
@@ -424,6 +514,8 @@
 
             document.getElementById('scoreOverlay').classList.remove('hidden');
             document.getElementById('liveScore').innerText = Math.floor(89 + Math.random() * 11);
+
+            startLyricsSync();
         }
 
         function togglePlayPause() {
@@ -467,18 +559,6 @@
             gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
             osc.start();
             osc.stop(audioCtx.currentTime + 0.4);
-        }
-
-        function changePitch(delta) {
-            currentPitch += delta;
-            document.getElementById('pitchDisplay').innerText = currentPitch > 0 ? `+${currentPitch}` : currentPitch;
-        }
-
-        function changeTempo(delta) {
-            currentSpeed = Math.max(0.7, Math.min(1.3, currentSpeed + delta));
-            document.getElementById('tempoDisplay').innerText = `${currentSpeed.toFixed(1)}x`;
-            const player = document.getElementById('drivePlayer');
-            if (player) player.playbackRate = currentSpeed;
         }
 
         async function launchStageOnTV() {
