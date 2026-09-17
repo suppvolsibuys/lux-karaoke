@@ -19,7 +19,7 @@
 </head>
 <body class="h-screen w-screen overflow-hidden flex flex-col select-none">
 
-    <!-- Global App Header & View Mode Selector -->
+    <!-- Header Navigation -->
     <header class="h-20 glass-panel border-b border-white/5 px-6 flex justify-between items-center z-40">
         <div class="flex items-center space-x-4">
             <div class="w-11 h-11 rounded-2xl purple-gradient flex items-center justify-center glow-purple">
@@ -27,11 +27,10 @@
             </div>
             <div>
                 <span class="font-display font-extrabold text-2xl tracking-wider text-white">LUX KARAOKE</span>
-                <p class="text-[10px] text-gray-400 tracking-widest uppercase font-semibold">Single-Page Enterprise System</p>
+                <p class="text-[10px] text-gray-400 tracking-widest uppercase font-semibold">Enterprise System</p>
             </div>
         </div>
 
-        <!-- Mode Switcher Navigation Buttons -->
         <div class="flex items-center bg-black/60 p-1.5 rounded-2xl border border-white/10 space-x-1">
             <button onclick="switchView('host')" id="nav-host" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white shadow-lg">
                 <i class="fa-solid fa-desktop mr-1.5"></i> Host View
@@ -45,18 +44,16 @@
         </div>
 
         <div class="flex items-center space-x-4">
-            <!-- Language Selector -->
             <select id="langSelector" onchange="changeLanguage(this.value)" class="bg-black/60 border border-white/10 text-xs text-purple-300 font-bold px-3 py-2 rounded-xl focus:outline-none cursor-pointer">
                 <option value="en">English (EN)</option>
                 <option value="ms">Bahasa Melayu (MS)</option>
                 <option value="zh">中文 (ZH)</option>
             </select>
 
-            <!-- Room Code & QR Display -->
             <div class="flex items-center space-x-3 bg-black/40 px-3.5 py-1.5 rounded-2xl border border-white/5">
                 <div id="qrcode" class="w-9 h-9 bg-white p-0.5 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0"></div>
                 <div>
-                    <span class="text-[9px] uppercase font-bold text-gray-500 block" data-i18n="roomCode">Room Code</span>
+                    <span class="text-[9px] uppercase font-bold text-gray-500 block">Room Code</span>
                     <span id="roomIdDisplay" class="font-mono text-xs font-bold text-purple-400">....</span>
                 </div>
             </div>
@@ -67,10 +64,11 @@
         </div>
     </header>
 
-    <!-- VIEW CONTAINER 1: HOST SYSTEM DASHBOARD -->
+    <!-- HOST VIEW -->
     <main id="view-host" class="flex-1 flex overflow-hidden p-6 gap-6">
         <section class="flex-1 flex flex-col gap-5">
-            <div class="relative flex-1 glass-panel rounded-3xl overflow-hidden glow-purple flex items-center justify-center bg-black/90 border border-white/10">
+            <!-- Video Display Container -->
+            <div class="relative flex-1 glass-panel rounded-3xl overflow-hidden glow-purple flex items-center justify-center bg-black border border-white/10">
                 <video id="drivePlayer" class="w-full h-full object-contain hidden" controls></video>
                 <div id="ytPlayerContainer" class="w-full h-full hidden"><div id="ytPlayer"></div></div>
 
@@ -78,31 +76,54 @@
                     <div class="w-24 h-24 mx-auto mb-4 rounded-3xl bg-purple-900/30 border border-purple-500/20 flex items-center justify-center glow-purple">
                         <i class="fa-solid fa-compact-disc text-4xl text-purple-400 animate-spin" style="animation-duration: 10s;"></i>
                     </div>
-                    <h3 class="font-display text-xl font-bold text-white" data-i18n="readyTitle">Ready for Performance</h3>
-                    <p class="text-gray-500 text-xs mt-1" data-i18n="readyDesc">Select a track from search, library or mobile remote</p>
+                    <h3 class="font-display text-xl font-bold text-white">Ready for Performance</h3>
+                    <p class="text-gray-500 text-xs mt-1">Paste a YouTube link or Video ID on the right to start</p>
                 </div>
             </div>
 
+            <!-- Master Playback & Audio Controls -->
             <div class="glass-panel rounded-2xl p-4 flex items-center justify-between gap-6 border border-white/5">
-                <button id="vocalBtn" onclick="toggleVocalFilter()" class="px-4 py-2.5 rounded-xl border border-purple-500/40 text-purple-300 hover:bg-purple-500/10 transition flex items-center gap-2 text-xs font-semibold">
-                    <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
-                    <span id="vocalStatus" data-i18n="vocalFilterOff">Vocal Filter: OFF</span>
-                </button>
+                <!-- Playback Buttons -->
+                <div class="flex items-center gap-2">
+                    <button onclick="togglePlayPause()" class="w-10 h-10 rounded-xl bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center transition shadow-lg">
+                        <i id="playPauseIcon" class="fa-solid fa-play"></i>
+                    </button>
+                    <button onclick="playNextTrack()" title="Skip to Next Track" class="w-10 h-10 rounded-xl glass-card hover:bg-purple-600/20 text-purple-300 flex items-center justify-center transition">
+                        <i class="fa-solid fa-forward-step"></i>
+                    </button>
+                    <button onclick="restartTrack()" title="Restart Track" class="w-10 h-10 rounded-xl glass-card hover:bg-white/10 text-gray-300 flex items-center justify-center transition">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                </div>
 
-                <div class="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/5">
-                    <span class="text-xs font-bold text-gray-400" data-i18n="keyLabel">Key:</span>
-                    <button onclick="changePitch(-1)" class="w-7 h-7 rounded-lg glass-card font-bold text-xs hover:bg-purple-600 transition">-</button>
-                    <span id="pitchDisplay" class="w-6 text-center text-xs font-bold text-purple-400">0</span>
-                    <button onclick="changePitch(1)" class="w-7 h-7 rounded-lg glass-card font-bold text-xs hover:bg-purple-600 transition">+</button>
+                <!-- Track Info Banner -->
+                <div class="truncate text-center flex-1 px-4">
+                    <h4 id="nowPlayingTitle" class="text-xs font-bold text-white truncate">No Song Playing</h4>
+                    <p id="nowPlayingArtist" class="text-[10px] text-purple-400 truncate">Select a track to begin</p>
+                </div>
+
+                <!-- Vocal & Pitch Controls -->
+                <div class="flex items-center gap-4">
+                    <button id="vocalBtn" onclick="toggleVocalFilter()" class="px-3 py-2 rounded-xl border border-purple-500/40 text-purple-300 hover:bg-purple-500/10 transition flex items-center gap-2 text-xs font-semibold">
+                        <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+                        <span id="vocalStatus">Vocal Filter: OFF</span>
+                    </button>
+
+                    <div class="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-xl border border-white/5">
+                        <span class="text-xs font-bold text-gray-400">Key:</span>
+                        <button onclick="changePitch(-1)" class="w-6 h-6 rounded-lg glass-card font-bold text-xs hover:bg-purple-600 transition">-</button>
+                        <span id="pitchDisplay" class="w-5 text-center text-xs font-bold text-purple-400">0</span>
+                        <button onclick="changePitch(1)" class="w-6 h-6 rounded-lg glass-card font-bold text-xs hover:bg-purple-600 transition">+</button>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Right Host Control Sidebar -->
+        <!-- Right Control Sidebar -->
         <aside class="w-[420px] glass-panel rounded-3xl flex flex-col overflow-hidden border border-white/5">
             <div class="flex border-b border-white/5 bg-black/40 p-2 gap-1">
                 <button onclick="switchHostSidebarTab('search')" id="hostTabSearch" class="flex-1 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white">
-                    <i class="fa-solid fa-magnifying-glass mr-1"></i> Add / Search
+                    <i class="fa-solid fa-magnifying-glass mr-1"></i> Add Track
                 </button>
                 <button onclick="switchHostSidebarTab('queue')" id="hostTabQueue" class="flex-1 py-2 rounded-xl text-xs font-bold transition text-gray-400 hover:text-white">
                     <i class="fa-solid fa-list-ul mr-1"></i> Queue (<span id="queueBadgeCount">0</span>)
@@ -112,7 +133,7 @@
             <!-- YouTube Input & HDD Indexer -->
             <div id="hostSearchView" class="flex-1 flex flex-col p-4 space-y-3 overflow-hidden">
                 <div class="flex gap-2">
-                    <input type="text" id="hostSearchInput" onkeypress="if(event.key==='Enter') processHostSearchInput()" placeholder="Paste YouTube link or 11-char ID..." data-i18n-ph="searchPlaceholder" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+                    <input type="text" id="hostSearchInput" onkeypress="if(event.key==='Enter') processHostSearchInput()" placeholder="Paste YouTube link or 11-char ID..." class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
                     <button onclick="processHostSearchInput()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 rounded-xl text-xs font-bold transition flex items-center justify-center">
                         <i class="fa-solid fa-plus"></i>
                     </button>
@@ -129,19 +150,20 @@
                 </div>
 
                 <div id="hostSearchResults" class="flex-1 overflow-y-auto space-y-2 pr-1">
-                    <p class="text-center text-xs text-gray-500 py-8">Paste a YouTube URL/Video ID or scan a local folder above</p>
+                    <p class="text-center text-xs text-gray-500 py-8">Paste a YouTube link above (e.g., https://youtu.be/fJ9rUzIMcZQ)</p>
                 </div>
             </div>
 
+            <!-- Queue Feed with Reordering Controls -->
             <div id="hostQueueView" class="flex-1 overflow-y-auto p-4 space-y-2 hidden"></div>
         </aside>
     </main>
 
-    <!-- VIEW CONTAINER 2: STAGE DISPLAY MONITOR -->
+    <!-- STAGE VIEW -->
     <main id="view-stage" class="flex-1 flex flex-col justify-between p-12 hidden relative bg-black">
         <header class="flex justify-between items-center opacity-80">
             <div>
-                <span id="nowPerformingTag" class="text-xs font-bold tracking-widest text-purple-400 uppercase block">Now Performing</span>
+                <span class="text-xs font-bold tracking-widest text-purple-400 uppercase block">Now Performing</span>
                 <h1 id="stageTitle" class="text-4xl font-extrabold text-white">Ready on Stage</h1>
                 <p id="stageArtist" class="text-lg text-gray-400 font-medium"></p>
             </div>
@@ -155,13 +177,13 @@
 
         <footer class="bg-gray-900/60 border border-gray-800 rounded-2xl p-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <span id="upNextBadge" class="px-3 py-1 bg-purple-600 text-white font-bold text-xs rounded-lg uppercase">Up Next</span>
+                <span class="px-3 py-1 bg-purple-600 text-white font-bold text-xs rounded-lg uppercase">Up Next</span>
                 <span id="stageNextTrack" class="text-sm font-semibold text-gray-300">Queue is clear</span>
             </div>
         </footer>
     </main>
 
-    <!-- VIEW CONTAINER 3: MOBILE REMOTE CONTROLLER -->
+    <!-- REMOTE CONTROLLER VIEW -->
     <main id="view-remote" class="flex-1 p-6 max-w-md mx-auto w-full space-y-4 hidden overflow-y-auto">
         <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-4 space-y-3">
             <h3 class="text-sm font-bold text-purple-400">Add Track to Room Queue</h3>
@@ -173,16 +195,17 @@
         </div>
 
         <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-4 space-y-2">
-            <h3 class="text-xs font-bold text-gray-400 uppercase">Live Room Queue</h3>
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-xs font-bold text-gray-400 uppercase">Live Room Queue</h3>
+                <button onclick="clearQueue()" class="text-[10px] text-red-400 hover:underline">Clear Queue</button>
+            </div>
             <div id="remoteQueueView" class="space-y-2"></div>
         </div>
     </main>
 
-    <!-- External YouTube IFrame API -->
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
-        // GLOBAL SYSTEM STATE & I18N
         let currentLang = 'en';
         let roomId = "8899";
         let tracks = [
@@ -191,18 +214,12 @@
         ];
         let localMediaFiles = new Map();
         let ytPlayer = null;
+        let ytReady = false;
+        let isPlaying = false;
         let currentSemitones = 0, filterActive = false;
 
-        // BROWSER-NATIVE CROSS-TAB BROADCAST PIPELINE
         const appChannel = new BroadcastChannel('lux_karaoke_system');
 
-        const i18n = {
-            en: { readyTitle: "Ready for Performance", readyDesc: "Select a track from search or library", vocalFilterOff: "Vocal Filter: OFF", vocalFilterOn: "Vocal Filter: ON", keyLabel: "Key:" },
-            ms: { readyTitle: "Bersedia Untuk Persembahan", readyDesc: "Pilih lagu daripada carian atau pustaka", vocalFilterOff: "Penapis Vokal: TUTUP", vocalFilterOn: "Penapis Vokal: BUKA", keyLabel: "Nada:" },
-            zh: { readyTitle: "准备表演", readyDesc: "从搜索或曲库选择歌曲", vocalFilterOff: "人声过滤: 关闭", vocalFilterOn: "人声过滤: 开启", keyLabel: "音调:" }
-        };
-
-        // 1. SYSTEM INITIALIZATION
         window.addEventListener('DOMContentLoaded', () => {
             generateRoomId();
             renderQRCode();
@@ -215,33 +232,42 @@
             document.getElementById('roomIdDisplay').innerText = roomId;
         }
 
-        // Direct Inline SVG QR Code Generation (Zero External API Dependency)
         function renderQRCode() {
             const currentUrl = window.location.href.split('?')[0];
             const qrTarget = `${currentUrl}?room=${roomId}`;
-            const container = document.getElementById("qrcode");
-            container.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrTarget)}" class="w-full h-full object-contain">`;
+            document.getElementById("qrcode").innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrTarget)}" class="w-full h-full object-contain">`;
         }
 
-        // 2. VIEW SWITCHER SYSTEM
         function switchView(viewName) {
             ['host', 'stage', 'remote'].forEach(v => {
                 document.getElementById(`view-${v}`).classList.toggle('hidden', v !== viewName);
                 const navBtn = document.getElementById(`nav-${v}`);
-                if (v === viewName) {
-                    navBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white shadow-lg";
-                } else {
-                    navBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition text-gray-400 hover:text-white";
+                navBtn.className = v === viewName ? 
+                    "px-4 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white shadow-lg" : 
+                    "px-4 py-2 rounded-xl text-xs font-bold transition text-gray-400 hover:text-white";
+            });
+        }
+
+        // YouTube IFrame API Handler
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('ytPlayer', {
+                height: '100%', width: '100%',
+                playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0 },
+                events: {
+                    'onReady': () => { ytReady = true; },
+                    'onStateChange': (e) => {
+                        if (e.data === YT.PlayerState.ENDED) playNextTrack();
+                        if (e.data === YT.PlayerState.PLAYING) updatePlayIcon(true);
+                        if (e.data === YT.PlayerState.PAUSED) updatePlayIcon(false);
+                    }
                 }
             });
         }
 
-        // 3. ROBUST YOUTUBE LINK PARSER (Handles all YouTube URL formats & 11-char IDs)
         function parseYouTubeId(input) {
             if (!input) return null;
             const str = input.trim();
             if (/^[a-zA-Z0-9_-]{11}$/.test(str)) return str;
-
             try {
                 const url = new URL(str.startsWith('http') ? str : `https://${str}`);
                 if (url.hostname.includes('youtu.be')) return url.pathname.slice(1);
@@ -257,7 +283,6 @@
             return null;
         }
 
-        // 4. QUEUE & PLAYBACK CONTROLLER
         function processHostSearchInput() {
             const input = document.getElementById('hostSearchInput').value;
             const videoId = parseYouTubeId(input);
@@ -270,7 +295,7 @@
 
             addTrackToQueue(videoId, `YouTube Video (${videoId})`, 'Online Stream');
             document.getElementById('hostSearchInput').value = '';
-            container.innerHTML = `<div class="p-3 bg-emerald-950/40 border border-emerald-800/50 rounded-xl text-center text-xs text-emerald-400 font-bold">Successfully Added to Playlist!</div>`;
+            container.innerHTML = `<div class="p-3 bg-emerald-950/40 border border-emerald-800/50 rounded-xl text-center text-xs text-emerald-400 font-bold">Track Added to Playlist!</div>`;
         }
 
         function processMobileInput() {
@@ -293,14 +318,140 @@
         function addTrackToQueue(src, title, artist) {
             const newTrack = { id: Date.now().toString(), title, artist, src };
             tracks.push(newTrack);
-            
             renderPlaylist();
             appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks });
 
-            const idleState = document.getElementById('idleState');
-            if (idleState && !idleState.classList.contains('hidden')) {
+            // Play immediately if idling
+            if (document.getElementById('idleState') && !document.getElementById('idleState').classList.contains('hidden')) {
                 playTrack(src);
             }
+        }
+
+        function playTrack(src) {
+            document.getElementById('idleState').classList.add('hidden');
+            const current = tracks.find(t => t.src === src) || { title: 'Selected Track', artist: 'Karaoke Performance' };
+
+            // Update UI Labels
+            document.getElementById('nowPlayingTitle').innerText = current.title;
+            document.getElementById('nowPlayingArtist').innerText = current.artist;
+            document.getElementById('stageTitle').innerText = current.title;
+            document.getElementById('stageArtist').innerText = current.artist;
+
+            if (localMediaFiles.has(src)) {
+                document.getElementById('ytPlayerContainer').classList.add('hidden');
+                const drivePlayer = document.getElementById('drivePlayer');
+                drivePlayer.classList.remove('hidden');
+                drivePlayer.src = URL.createObjectURL(localMediaFiles.get(src));
+                drivePlayer.play();
+                updatePlayIcon(true);
+                return;
+            }
+
+            document.getElementById('drivePlayer').classList.add('hidden');
+            document.getElementById('ytPlayerContainer').classList.remove('hidden');
+
+            if (ytPlayer && ytReady) {
+                ytPlayer.loadVideoById(src);
+                updatePlayIcon(true);
+            } else {
+                setTimeout(() => playTrack(src), 500);
+            }
+        }
+
+        function togglePlayPause() {
+            const drivePlayer = document.getElementById('drivePlayer');
+            if (!drivePlayer.classList.contains('hidden')) {
+                if (drivePlayer.paused) { drivePlayer.play(); updatePlayIcon(true); }
+                else { drivePlayer.pause(); updatePlayIcon(false); }
+                return;
+            }
+
+            if (ytPlayer && ytReady) {
+                const state = ytPlayer.getPlayerState();
+                if (state === YT.PlayerState.PLAYING) {
+                    ytPlayer.pauseVideo();
+                    updatePlayIcon(false);
+                } else {
+                    ytPlayer.playVideo();
+                    updatePlayIcon(true);
+                }
+            }
+        }
+
+        function updatePlayIcon(playing) {
+            isPlaying = playing;
+            const icon = document.getElementById('playPauseIcon');
+            if (icon) icon.className = playing ? "fa-solid fa-pause" : "fa-solid fa-play";
+        }
+
+        function playNextTrack() {
+            if (tracks.length > 0) {
+                tracks.shift();
+                renderPlaylist();
+                appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks });
+                if (tracks.length > 0) {
+                    playTrack(tracks[0].src);
+                } else {
+                    document.getElementById('idleState').classList.remove('hidden');
+                    document.getElementById('ytPlayerContainer').classList.add('hidden');
+                    document.getElementById('drivePlayer').classList.add('hidden');
+                    document.getElementById('nowPlayingTitle').innerText = "No Song Playing";
+                    document.getElementById('nowPlayingArtist').innerText = "Queue finished";
+                    updatePlayIcon(false);
+                }
+            }
+        }
+
+        function restartTrack() {
+            const drivePlayer = document.getElementById('drivePlayer');
+            if (!drivePlayer.classList.contains('hidden')) {
+                drivePlayer.currentTime = 0;
+                drivePlayer.play();
+                return;
+            }
+            if (ytPlayer && ytReady) {
+                ytPlayer.seekTo(0);
+                ytPlayer.playVideo();
+            }
+        }
+
+        // QUEUE REORDERING CONTROLS (Up, Down, Play Now, Delete)
+        function moveTrackUp(index) {
+            if (index <= 0) return;
+            const temp = tracks[index];
+            tracks[index] = tracks[index - 1];
+            tracks[index - 1] = temp;
+            renderPlaylist();
+            appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks });
+        }
+
+        function moveTrackDown(index) {
+            if (index >= tracks.length - 1) return;
+            const temp = tracks[index];
+            tracks[index] = tracks[index + 1];
+            tracks[index + 1] = temp;
+            renderPlaylist();
+            appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks });
+        }
+
+        function playSpecificTrack(index) {
+            const selected = tracks.splice(index, 1)[0];
+            tracks.unshift(selected);
+            renderPlaylist();
+            appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks });
+            playTrack(selected.src);
+        }
+
+        function removeTrack(index) {
+            tracks.splice(index, 1);
+            renderPlaylist();
+            appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks });
+        }
+
+        function clearQueue() {
+            tracks = [];
+            renderPlaylist();
+            appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks });
         }
 
         function renderPlaylist() {
@@ -311,72 +462,41 @@
             let html = '';
             tracks.forEach((t, i) => {
                 html += `
-                <div class="glass-card p-3 rounded-2xl flex items-center justify-between">
-                    <div class="flex items-center space-x-3 truncate">
-                        <span class="text-xs font-bold text-purple-400 font-mono">${i + 1}</span>
+                <div class="glass-card p-2.5 rounded-2xl flex items-center justify-between border border-white/5 gap-2">
+                    <div class="flex items-center space-x-2.5 truncate flex-1">
+                        <span class="text-xs font-bold text-purple-400 font-mono w-4">${i + 1}</span>
                         <div class="truncate">
                             <h4 class="text-xs font-bold text-gray-200 truncate">${t.title}</h4>
                             <p class="text-[10px] text-gray-500 truncate">${t.artist}</p>
                         </div>
                     </div>
-                    <button onclick="removeTrack(${i})" class="text-red-400 text-xs px-2"><i class="fa-solid fa-trash"></i></button>
+
+                    <!-- Reorder & Action Controls -->
+                    <div class="flex items-center space-x-1">
+                        <button onclick="playSpecificTrack(${i})" title="Play Now" class="w-6 h-6 rounded-lg bg-purple-600/30 text-purple-300 hover:bg-purple-600 hover:text-white flex items-center justify-center text-[10px] transition">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                        <button onclick="moveTrackUp(${i})" title="Move Up" class="w-6 h-6 rounded-lg glass-card hover:bg-white/10 text-gray-300 flex items-center justify-center text-[10px] transition ${i === 0 ? 'opacity-30 pointer-events-none' : ''}">
+                            <i class="fa-solid fa-chevron-up"></i>
+                        </button>
+                        <button onclick="moveTrackDown(${i})" title="Move Down" class="w-6 h-6 rounded-lg glass-card hover:bg-white/10 text-gray-300 flex items-center justify-center text-[10px] transition ${i === tracks.length - 1 ? 'opacity-30 pointer-events-none' : ''}">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                        <button onclick="removeTrack(${i})" title="Remove Track" class="w-6 h-6 rounded-lg glass-card hover:bg-red-500/20 text-red-400 flex items-center justify-center text-[10px] transition">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                 </div>`;
             });
 
-            if (hostContainer) hostContainer.innerHTML = html;
-            if (remoteContainer) remoteContainer.innerHTML = html;
+            if (hostContainer) hostContainer.innerHTML = html || '<p class="text-center text-xs text-gray-500 py-8">Queue is empty</p>';
+            if (remoteContainer) remoteContainer.innerHTML = html || '<p class="text-center text-xs text-gray-500 py-4">Queue is empty</p>';
 
             const nextTrack = tracks[1] || null;
             document.getElementById('stageNextTrack').innerText = nextTrack ? `${nextTrack.title} - ${nextTrack.artist}` : 'Queue is clear';
         }
 
-        function removeTrack(index) {
-            tracks.splice(index, 1);
-            renderPlaylist();
-            appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks });
-        }
-
-        function playTrack(src) {
-            document.getElementById('idleState').classList.add('hidden');
-            const current = tracks.find(t => t.src === src) || { title: 'Selected Track', artist: 'Karaoke Performance' };
-
-            // Update Stage Display Info
-            document.getElementById('stageTitle').innerText = current.title;
-            document.getElementById('stageArtist').innerText = current.artist;
-
-            if (localMediaFiles.has(src)) {
-                document.getElementById('ytPlayerContainer').classList.add('hidden');
-                const drivePlayer = document.getElementById('drivePlayer');
-                drivePlayer.classList.remove('hidden');
-                drivePlayer.src = URL.createObjectURL(localMediaFiles.get(src));
-                drivePlayer.play();
-                return;
-            }
-
-            document.getElementById('drivePlayer').classList.add('hidden');
-            document.getElementById('ytPlayerContainer').classList.remove('hidden');
-            if (ytPlayer && ytPlayer.loadVideoById) ytPlayer.loadVideoById(src);
-        }
-
-        // 5. YOUTUBE IFRAME PLAYER API
-        function onYouTubeIframeAPIReady() {
-            ytPlayer = new YT.Player('ytPlayer', {
-                height: '100%', width: '100%',
-                playerVars: { 'autoplay': 1, 'controls': 1 },
-                events: { 'onStateChange': (e) => { if (e.data === YT.PlayerState.ENDED) playNextTrack(); } }
-            });
-        }
-
-        function playNextTrack() {
-            if (tracks.length > 1) {
-                tracks.shift();
-                renderPlaylist();
-                appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks });
-                playTrack(tracks[0].src);
-            }
-        }
-
-        // 6. LOCAL MEDIA HDD SCANNER ENGINE
+        // Local Directory Scanner
         async function selectAndIndexFolder() {
             if (!('showDirectoryPicker' in window)) {
                 alert("Directory indexing requires Chrome or Edge desktop browser.");
@@ -411,7 +531,6 @@
             }
         }
 
-        // 7. HELPER FUNCTIONS
         function setupBroadcastListeners() {
             appChannel.onmessage = (event) => {
                 if (event.data.type === 'QUEUE_UPDATE') {
@@ -428,14 +547,6 @@
             document.getElementById('hostTabQueue').className = tab === 'queue' ? 'flex-1 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white' : 'flex-1 py-2 rounded-xl text-xs font-bold transition text-gray-400 hover:text-white';
         }
 
-        function changeLanguage(lang) {
-            currentLang = lang;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (i18n[currentLang][key]) el.innerText = i18n[currentLang][key];
-            });
-        }
-
         function changePitch(delta) {
             currentSemitones = Math.max(-6, Math.min(6, currentSemitones + delta));
             document.getElementById('pitchDisplay').innerText = currentSemitones > 0 ? `+${currentSemitones}` : `${currentSemitones}`;
@@ -443,8 +554,7 @@
 
         function toggleVocalFilter() {
             filterActive = !filterActive;
-            const statusKey = filterActive ? 'vocalFilterOn' : 'vocalFilterOff';
-            document.getElementById('vocalStatus').innerText = i18n[currentLang][statusKey];
+            document.getElementById('vocalStatus').innerText = filterActive ? "Vocal Filter: ON" : "Vocal Filter: OFF";
         }
     </script>
 </body>
