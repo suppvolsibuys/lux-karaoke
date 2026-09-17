@@ -307,26 +307,63 @@
 
         // WebRTC Server Setup
         function initHostRemoteServer() {
-            peer = new Peer(`lux-karaoke-${roomId}`, {
-                config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
-            });
-            peer.on('open', () => {
-                document.getElementById('roomIdDisplay').innerText = roomId;
-                new QRCode(document.getElementById("qrcode"), {
-                    text: `${window.location.origin}/remote.html?room=${roomId}&lang=${currentLang}`, width: 32, height: 32
-                });
-            });
-            peer.on('connection', (conn) => {
-                activeConnections.push(conn);
-                conn.on('open', () => conn.send({ type: 'SYNC_QUEUE', queue: tracks }));
-                conn.on('data', (data) => {
-                    if (data.type === 'QUEUE_TRACK') tracks.push(data.track);
-                    else if (data.type === 'REMOVE_TRACK') tracks.splice(data.index, 1);
+    // 1. Instantly display Room PIN so UI never hangs
+    document.getElementById('roomIdDisplay').innerText = roomId;
+
+    // 2. Build direct connection URL for mobile remotes
+    const remoteUrl = `${window.location.origin}/remote.html?room=${roomId}&lang=${currentLang}`;
+
+    // 3. Render clean, high-resolution QR Code instantly via SVG Image
+    const qrContainer = document.getElementById("qrcode");
+    qrContainer.innerHTML = `
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(remoteUrl)}" 
+             alt="Room QR Code" 
+             class="w-full h-full rounded object-contain">
+    `;
+
+    // 4. Initialize PeerJS WebRTC Connection
+    try {
+        peer = new Peer(`lux-karaoke-${roomId}`, {
+            config: { 
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' }
+                ] 
+            },
+            debug: 1
+        });
+
+        peer.on('open', (id) => {
+            console.log('PeerJS Host Server Online. Room PIN:', roomId);
+        });
+
+        peer.on('connection', (conn) => {
+            activeConnections.push(conn);
+            conn.on('open', () => conn.send({ type: 'SYNC_QUEUE', queue: tracks }));
+            conn.on('data', (data) => {
+                if (data.type === 'QUEUE_TRACK') {
+                    tracks.push(data.track);
                     renderPlaylist();
                     broadcastQueue();
-                });
+                } else if (data.type === 'REMOVE_TRACK') {
+                    tracks.splice(data.index, 1);
+                    renderPlaylist();
+                    broadcastQueue();
+                }
             });
-        }
+        });
+
+        peer.on('error', (err) => {
+            console.warn('PeerJS connection warning:', err.type);
+            if (err.type === 'unavailable-id') {
+                roomId = Math.floor(1000 + Math.random() * 9000).toString();
+                initHostRemoteServer();
+            }
+        });
+    } catch (e) {
+        console.error("PeerJS initialization failed:", e);
+    }
+}
 
         function broadcastQueue() {
             activeConnections.forEach(conn => { if (conn.open) conn.send({ type: 'SYNC_QUEUE', queue: tracks }); });
