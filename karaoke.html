@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUX Karaoke Enterprise Suite</title>
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#05070a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3083/3083414.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #05070a; color: #f3f4f6; }
+        .font-display { font-family: 'Space Grotesk', sans-serif; }
+        .glass-panel { background: rgba(15, 18, 28, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.06); }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-card:hover { background: rgba(168, 85, 247, 0.08); border-color: rgba(168, 85, 247, 0.3); }
+        .glow-purple { box-shadow: 0 0 35px -5px rgba(168, 85, 247, 0.3); }
+        .purple-gradient { background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%); }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col select-none">
+
+    <!-- Top Navigation Header -->
+    <header class="h-20 glass-panel border-b border-white/5 px-8 flex justify-between items-center z-30">
+        <div class="flex items-center space-x-4">
+            <div class="w-11 h-11 rounded-2xl purple-gradient flex items-center justify-center glow-purple">
+                <i class="fa-solid fa-crown text-white text-lg"></i>
+            </div>
+            <div>
+                <span class="font-display font-extrabold text-2xl tracking-wider text-white">LUX KARAOKE</span>
+                <p class="text-[10px] text-gray-500 tracking-widest uppercase font-semibold" data-i18n="subtitle">Enterprise System</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <!-- PWA Install Button -->
+            <button id="pwaInstallBtn" onclick="installPWA()" class="hidden px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-2 glow-purple">
+                <i class="fa-solid fa-download"></i> <span data-i18n="installApp">Install App</span>
+            </button>
+
+            <!-- Language Switcher -->
+            <select id="langSelector" onchange="changeLanguage(this.value)" class="bg-black/60 border border-white/10 text-xs text-purple-300 font-bold px-3 py-2 rounded-xl focus:outline-none cursor-pointer">
+                <option value="en">English (EN)</option>
+                <option value="ms">Bahasa Melayu (MS)</option>
+                <option value="zh">中文 (ZH)</option>
+            </select>
+
+            <!-- Room PIN & QR Code -->
+            <div class="flex items-center space-x-3 bg-black/40 px-4 py-2 rounded-2xl border border-white/5">
+                <div id="qrcode" class="w-8 h-8 bg-white p-0.5 rounded-md"></div>
+                <div>
+                    <span class="text-[9px] uppercase font-bold text-gray-500 block" data-i18n="roomCode">Room Code</span>
+                    <span id="roomIdDisplay" class="font-mono text-xs font-bold text-purple-400">CONNECTING...</span>
+                </div>
+            </div>
+
+            <button onclick="document.documentElement.requestFullscreen()" class="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-gray-400 hover:text-white transition">
+                <i class="fa-solid fa-expand text-sm"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 flex overflow-hidden p-6 gap-6">
+        
+        <!-- Left: Video Player & Controls -->
+        <section class="flex-1 flex flex-col gap-5">
+            <div class="relative flex-1 glass-panel rounded-3xl overflow-hidden glow-purple flex items-center justify-center bg-black/90 border border-white/10">
+                <video id="drivePlayer" class="w-full h-full object-contain hidden" controls></video>
+                <div id="ytPlayerContainer" class="w-full h-full hidden"><div id="ytPlayer"></div></div>
+
+                <div id="idleState" class="text-center">
+                    <div class="w-24 h-24 mx-auto mb-4 rounded-3xl bg-purple-900/30 border border-purple-500/20 flex items-center justify-center glow-purple">
+                        <i class="fa-solid fa-compact-disc text-4xl text-purple-400 animate-spin" style="animation-duration: 10s;"></i>
+                    </div>
+                    <h3 class="font-display text-xl font-bold text-white" data-i18n="readyTitle">Ready for Performance</h3>
+                    <p class="text-gray-500 text-xs mt-1" data-i18n="readyDesc">Select a track from search, library or mobile remote</p>
+                </div>
+            </div>
+
+            <!-- Controls Panel -->
+            <div class="glass-panel rounded-2xl p-4 flex items-center justify-between gap-6 border border-white/5">
+                <button id="vocalBtn" onclick="toggleVocalFilter()" class="px-4 py-2.5 rounded-xl border border-purple-500/40 text-purple-300 hover:bg-purple-500/10 transition flex items-center gap-2 text-xs font-semibold">
+                    <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+                    <span id="vocalStatus" data-i18n="vocalFilterOff">Vocal Filter: OFF</span>
+                </button>
+
+                <div class="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/5">
+                    <span class="text-xs font-bold text-gray-400" data-i18n="keyLabel">Key:</span>
+                    <button onclick="changePitch(-1)" class="w-7 h-7 rounded-lg glass-card font-bold text-xs hover:bg-purple-600 transition">-</button>
+                    <span id="pitchDisplay" class="w-6 text-center text-xs font-bold text-purple-400">0</span>
+                    <button onclick="changePitch(1)" class="w-7 h-7 rounded-lg glass-card font-bold text-xs hover:bg-purple-600 transition">+</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Sidebar (Search, Local HDD & Queue) -->
+        <aside class="w-[420px] glass-panel rounded-3xl flex flex-col overflow-hidden border border-white/5">
+            
+            <!-- Sidebar Navigation Tabs -->
+            <div class="flex border-b border-white/5 bg-black/40 p-2 gap-1">
+                <button onclick="switchHostSidebarTab('search')" id="hostTabSearch" class="flex-1 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white" data-i18n="searchTab">
+                    <i class="fa-solid fa-magnifying-glass mr-1"></i> Search
+                </button>
+                <button onclick="switchHostSidebarTab('queue')" id="hostTabQueue" class="flex-1 py-2 rounded-xl text-xs font-bold transition text-gray-400 hover:text-white" data-i18n="queueTab">
+                    <i class="fa-solid fa-list-ul mr-1"></i> Queue (<span id="queueBadgeCount">0</span>)
+                </button>
+            </div>
+
+            <!-- Tab 1: Direct Link / API Search Engine -->
+            <div id="hostSearchView" class="flex-1 flex flex-col p-4 space-y-3 overflow-hidden">
+                <div class="flex gap-2">
+                    <input type="text" id="hostSearchInput" onkeypress="if(event.key==='Enter') processHostSearchInput()" placeholder="Paste YouTube link or Video ID..." data-i18n-ph="searchPlaceholder" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+                    <button onclick="processHostSearchInput()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 rounded-xl text-xs font-bold transition flex items-center justify-center">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+
+                <!-- Local Hard Drive Directory Indexer -->
+                <div class="p-3 bg-white/5 rounded-2xl border border-white/5 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase" data-i18n="localHdd">Local HDD Indexer</span>
+                        <span id="indexedCountBadge" class="text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-mono">0 HDD Files</span>
+                    </div>
+                    <button onclick="selectAndIndexFolder()" class="w-full bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-purple-300 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-folder-open"></i> <span data-i18n="scanFolder">Scan Folder (HDD/SSD)</span>
+                    </button>
+                </div>
+
+                <!-- Search / Candidate Results Stream -->
+                <div id="hostSearchResults" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                    <p class="text-center text-xs text-gray-500 py-8" data-i18n="searchPrompt">Paste a YouTube URL/Video ID or scan a local folder above</p>
+                </div>
+            </div>
+
+            <!-- Tab 2: Live Queue Feed -->
+            <div id="hostQueueView" class="flex-1 overflow-y-auto p-4 space-y-2 hidden" id="playlistContainer"></div>
+        </aside>
+    </main>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <script>
+        const i18n = {
+            en: { subtitle: "Enterprise System", roomCode: "Room Code", readyTitle: "Ready for Performance", readyDesc: "Select a track from search, library or mobile remote", vocalFilterOff: "Vocal Filter: OFF", vocalFilterOn: "Vocal Filter: ON", keyLabel: "Key:", searchTab: "Search", queueTab: "Queue", searchPlaceholder: "Paste YouTube link or Video ID...", localHdd: "Local HDD Indexer", scanFolder: "Scan Folder (HDD/SSD)", searchPrompt: "Paste a YouTube URL/Video ID or scan a local folder above", installApp: "Install App" },
+            ms: { subtitle: "Sistem Perusahaan", roomCode: "Kod Bilik", readyTitle: "Bersedia Untuk Persembahan", readyDesc: "Pilih lagu daripada carian, pustaka atau telefon", vocalFilterOff: "Penapis Vokal: TUTUP", vocalFilterOn: "Penapis Vokal: BUKA", keyLabel: "Nada:", searchTab: "Carian", queueTab: "Senarai Lagu", searchPlaceholder: "Tampal pautan YouTube atau ID...", localHdd: "Indeks HDD Tempatan", scanFolder: "Imbas Folder (HDD/SSD)", searchPrompt: "Tampal pautan YouTube atau imbas folder tempatan", installApp: "Pasang Aplikasi" },
+            zh: { subtitle: "企业级卡拉OK系统", roomCode: "房间代码", readyTitle: "准备表演", readyDesc: "从搜索、曲库或手机遥控器选择歌曲", vocalFilterOff: "人声过滤: 关闭", vocalFilterOn: "人声过滤: 开启", keyLabel: "音调:", searchTab: "搜索", queueTab: "播放队列", searchPlaceholder: "粘贴YouTube链接或视频ID...", localHdd: "本地硬盘索引", scanFolder: "扫描文件夹 (硬盘)", searchPrompt: "在上方粘贴YouTube链接或扫描本地文件夹", installApp: "安装应用" }
+        };
+
+        let currentLang = 'en';
+        let tracks = [
+            { id: '1', title: 'Bohemian Rhapsody', artist: 'Queen', src: 'fJ9rUzIMcZQ' },
+            { id: '2', title: 'Hotel California', artist: 'Eagles', src: 'EqPtz5qN7HM' }
+        ];
+        
+        let audioCtx, currentSemitones = 0, filterActive = false, ytPlayer = null;
+        let roomId = Math.floor(1000 + Math.random() * 9000).toString();
+        let peer = null, activeConnections = [];
+        let localMediaFiles = new Map();
+        let deferredPrompt = null;
+        const stageChannel = new BroadcastChannel('lux_stage_channel');
+
+        // Language & I18n Engine
+        function autoDetectLanguage() {
+            const browserLang = navigator.language || navigator.userLanguage;
+            if (browserLang.startsWith('ms')) currentLang = 'ms';
+            else if (browserLang.startsWith('zh')) currentLang = 'zh';
+            else currentLang = 'en';
+            document.getElementById('langSelector').value = currentLang;
+            updateTranslations();
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            updateTranslations();
+        }
+
+        function updateTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[currentLang][key]) el.innerText = i18n[currentLang][key];
+            });
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (i18n[currentLang][key]) el.placeholder = i18n[currentLang][key];
+            });
+        }
+
+        // PWA Installation Hook
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwaInstallBtn').classList.remove('hidden');
+        });
+
+        async function installPWA() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            document.getElementById('pwaInstallBtn').classList.add('hidden');
+        }
+
+        // YouTube IFrame API Initialization
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('ytPlayer', {
+                height: '100%', width: '100%',
+                playerVars: { 'autoplay': 1, 'controls': 1 },
+                events: { 'onStateChange': (e) => { if (e.data === YT.PlayerState.ENDED) playNextTrack(); } }
+            });
+        }
+
+        // Zero-API YouTube Link Parser
+        function extractYouTubeId(input) {
+            if (!input) return null;
+            const str = input.trim();
+            if (/^[a-zA-Z0-9_-]{11}$/.test(str)) return str;
+            const regExp = /(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            const match = str.match(regExp);
+            return (match && match[1]) ? match[1] : null;
+        }
+
+        function processHostSearchInput() {
+            const input = document.getElementById('hostSearchInput').value;
+            const videoId = extractYouTubeId(input);
+            const container = document.getElementById('hostSearchResults');
+
+            if (!videoId) {
+                container.innerHTML = `
+                    <div class="p-3 bg-red-950/40 border border-red-800/50 rounded-xl text-center">
+                        <p class="text-xs text-red-400 font-semibold">Invalid YouTube Link</p>
+                        <p class="text-[10px] text-gray-400 mt-1">Please paste a valid YouTube video URL or 11-character ID.</p>
+                    </div>`;
+                return;
+            }
+
+            const thumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+            container.innerHTML = `
+                <div class="glass-card p-2.5 rounded-xl flex items-center justify-between gap-3 border border-purple-500/40">
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <img src="${thumbnail}" alt="Thumb" class="w-14 h-10 object-cover rounded-lg bg-gray-900 flex-shrink-0">
+                        <div class="truncate">
+                            <h4 class="text-xs font-bold text-purple-300 truncate">YouTube Stream (${videoId})</h4>
+                            <p class="text-[10px] text-gray-500">Ready to Add</p>
+                        </div>
+                    </div>
+                    <button onclick="addTrackToQueue('${videoId}', 'YouTube Stream (${videoId})', 'Direct Link')" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex-shrink-0 transition">
+                        + Add Track
+                    </button>
+                </div>`;
+        }
+
+        function addTrackToQueue(src, title, artist) {
+            tracks.push({ id: Date.now().toString(), title, artist, src });
+            renderPlaylist();
+            broadcastQueue();
+            if (!document.getElementById('idleState').classList.contains('hidden')) playTrack(src);
+        }
+
+        // Offline Hard Drive Directory Indexer
+        async function selectAndIndexFolder() {
+            if (!('showDirectoryPicker' in window)) {
+                alert("Directory indexing is supported on Chrome, Edge, and modern desktop browsers.");
+                return;
+            }
+            try {
+                const dirHandle = await window.showDirectoryPicker();
+                localMediaFiles.clear();
+                let scannedCount = 0;
+
+                for await (const entry of getFilesRecursively(dirHandle)) {
+                    if (entry.name.match(/\.(mp4|mkv|webm|mp3|wav)$/i)) {
+                        const file = await entry.getFile();
+                        const cleanName = entry.name.substring(0, entry.name.lastIndexOf('.'));
+                        let artist = "Local HDD", title = cleanName;
+                        if (cleanName.includes(' - ')) {
+                            const parts = cleanName.split(' - ');
+                            artist = parts[0].trim();
+                            title = parts.slice(1).join(' - ').trim();
+                        }
+                        const uniqueId = `hdd_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+                        localMediaFiles.set(uniqueId, file);
+                        tracks.push({ id: uniqueId, title, artist, src: uniqueId, isLocalFile: true });
+                        scannedCount++;
+                    }
+                }
+                document.getElementById('indexedCountBadge').innerText = `${scannedCount} HDD Files`;
+                renderPlaylist();
+                broadcastQueue();
+            } catch (err) {
+                if (err.name !== 'AbortError') console.error("Indexing error:", err);
+            }
+        }
+
+        async function* getFilesRecursively(dirHandle) {
+            for await (const entry of dirHandle.values()) {
+                if (entry.kind === 'file') yield entry;
+                else if (entry.kind === 'directory') yield* getFilesRecursively(entry);
+            }
+        }
+
+        // WebRTC Server Setup
+        function initHostRemoteServer() {
+            peer = new Peer(`lux-karaoke-${roomId}`, {
+                config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+            });
+            peer.on('open', () => {
+                document.getElementById('roomIdDisplay').innerText = roomId;
+                new QRCode(document.getElementById("qrcode"), {
+                    text: `${window.location.origin}/remote.html?room=${roomId}&lang=${currentLang}`, width: 32, height: 32
+                });
+            });
+            peer.on('connection', (conn) => {
+                activeConnections.push(conn);
+                conn.on('open', () => conn.send({ type: 'SYNC_QUEUE', queue: tracks }));
+                conn.on('data', (data) => {
+                    if (data.type === 'QUEUE_TRACK') tracks.push(data.track);
+                    else if (data.type === 'REMOVE_TRACK') tracks.splice(data.index, 1);
+                    renderPlaylist();
+                    broadcastQueue();
+                });
+            });
+        }
+
+        function broadcastQueue() {
+            activeConnections.forEach(conn => { if (conn.open) conn.send({ type: 'SYNC_QUEUE', queue: tracks }); });
+        }
+
+        function renderPlaylist() {
+            const container = document.getElementById('hostQueueView');
+            container.innerHTML = '';
+            document.getElementById('queueBadgeCount').innerText = tracks.length;
+
+            tracks.forEach((track, i) => {
+                const card = document.createElement('div');
+                card.className = "glass-card p-3 rounded-2xl flex items-center justify-between cursor-pointer";
+                card.onclick = () => playTrack(track.src);
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <span class="text-xs font-bold text-purple-400 font-mono w-4">${i + 1}</span>
+                        <div class="truncate">
+                            <h4 class="text-xs font-bold text-gray-200 truncate">${track.title}</h4>
+                            <p class="text-[10px] text-gray-500 truncate">${track.artist}</p>
+                        </div>
+                    </div>`;
+                container.appendChild(card);
+            });
+        }
+
+        function playTrack(trackIdOrSrc) {
+            document.getElementById('idleState').classList.add('hidden');
+
+            if (localMediaFiles.has(trackIdOrSrc)) {
+                const file = localMediaFiles.get(trackIdOrSrc);
+                document.getElementById('ytPlayerContainer').classList.add('hidden');
+                const drivePlayer = document.getElementById('drivePlayer');
+                drivePlayer.classList.remove('hidden');
+                drivePlayer.src = URL.createObjectURL(file);
+                drivePlayer.play();
+                stageChannel.postMessage({ type: 'SYNC_TRACK', title: file.name, artist: 'Local Storage', nextTrack: tracks[1] || null, lang: currentLang });
+                return;
+            }
+
+            document.getElementById('drivePlayer').classList.add('hidden');
+            document.getElementById('ytPlayerContainer').classList.remove('hidden');
+            const current = tracks.find(t => t.src === trackIdOrSrc) || { title: 'Track', artist: 'Artist' };
+            stageChannel.postMessage({ type: 'SYNC_TRACK', title: current.title, artist: current.artist, nextTrack: tracks[1] || null, lang: currentLang });
+            if (ytPlayer && ytPlayer.loadVideoById) ytPlayer.loadVideoById(trackIdOrSrc);
+        }
+
+        function playNextTrack() {
+            if (tracks.length > 1) {
+                tracks.shift();
+                renderPlaylist();
+                broadcastQueue();
+                playTrack(tracks[0].src);
+            }
+        }
+
+        function switchHostSidebarTab(tab) {
+            document.getElementById('hostSearchView').classList.toggle('hidden', tab !== 'search');
+            document.getElementById('hostQueueView').classList.toggle('hidden', tab !== 'queue');
+            document.getElementById('hostTabSearch').className = tab === 'search' ? 'flex-1 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white' : 'flex-1 py-2 rounded-xl text-xs font-bold transition text-gray-400 hover:text-white';
+            document.getElementById('hostTabQueue').className = tab === 'queue' ? 'flex-1 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white' : 'flex-1 py-2 rounded-xl text-xs font-bold transition text-gray-400 hover:text-white';
+        }
+
+        function changePitch(delta) {
+            currentSemitones = Math.max(-6, Math.min(6, currentSemitones + delta));
+            document.getElementById('pitchDisplay').innerText = currentSemitones > 0 ? `+${currentSemitones}` : `${currentSemitones}`;
+        }
+
+        function toggleVocalFilter() {
+            filterActive = !filterActive;
+            const statusKey = filterActive ? 'vocalFilterOn' : 'vocalFilterOff';
+            document.getElementById('vocalStatus').innerText = i18n[currentLang][statusKey];
+        }
+
+        autoDetectLanguage();
+        renderPlaylist();
+        initHostRemoteServer();
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration error:', err));
+        }
+    </script>
+</body>
+</html>

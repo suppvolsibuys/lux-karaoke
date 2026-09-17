@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUX Stage Display</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #000; color: #fff; }
+        .glow-text { text-shadow: 0 0 30px rgba(168, 85, 247, 0.6); }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col justify-between p-12 select-none">
+
+    <header class="flex justify-between items-center opacity-80">
+        <div>
+            <span id="nowPerformingTag" class="text-xs font-bold tracking-widest text-purple-400 uppercase block">Now Performing</span>
+            <h1 id="stageTitle" class="text-3xl font-extrabold">Ready on Stage</h1>
+            <p id="stageArtist" class="text-lg text-gray-400 font-medium"></p>
+        </div>
+    </header>
+
+    <main class="flex-1 flex items-center justify-center relative my-8">
+        <div class="relative w-full h-80 rounded-3xl bg-gray-950 border border-gray-900 overflow-hidden shadow-2xl flex items-center justify-center p-6">
+            <h2 id="lyricsDisplay" class="text-5xl font-black text-center glow-text text-purple-200">
+                Get Ready to Sing!
+            </h2>
+        </div>
+    </main>
+
+    <footer class="bg-gray-900/60 border border-gray-800 rounded-2xl p-4 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <span id="upNextBadge" class="px-3 py-1 bg-purple-600 text-white font-bold text-xs rounded-lg uppercase">Up Next</span>
+            <span id="nextTrackTitle" class="text-sm font-semibold text-gray-300">Queue is clear</span>
+        </div>
+    </footer>
+
+    <script>
+        const i18nStage = {
+            en: { performing: "Now Performing", upNext: "Up Next", ready: "Get Ready to Sing!" },
+            ms: { performing: "Persembahan Sekarang", upNext: "Seterusnya", ready: "Bersedia Untuk Menyanyi!" },
+            zh: { performing: "正在演唱", upNext: "下一首", ready: "准备开唱！" }
+        };
+
+        const stageChannel = new BroadcastChannel('lux_stage_channel');
+
+        stageChannel.onmessage = (event) => {
+            const data = event.data;
+            if (data.type === 'SYNC_TRACK') {
+                const lang = data.lang || 'en';
+                document.getElementById('nowPerformingTag').innerText = i18nStage[lang].performing;
+                document.getElementById('upNextBadge').innerText = i18nStage[lang].upNext;
+                document.getElementById('stageTitle').innerText = data.title || 'Now Playing';
+                document.getElementById('stageArtist').innerText = data.artist || '';
+                document.getElementById('nextTrackTitle').innerText = data.nextTrack ? `${data.nextTrack.title} - ${data.nextTrack.artist}` : 'Queue is clear';
+            }
+        };
+    </script>
+</body>
+</html>
