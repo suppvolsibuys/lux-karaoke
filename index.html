@@ -3,60 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUX Karaoke Enterprise Suite</title>
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#05070a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3083/3083414.png">
+    <title>LUX Karaoke Enterprise SPA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #05070a; color: #f3f4f6; }
         .font-display { font-family: 'Space Grotesk', sans-serif; }
-        .glass-panel { background: rgba(15, 18, 28, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.06); }
+        .glass-panel { background: rgba(15, 18, 28, 0.75); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .glass-card:hover { background: rgba(168, 85, 247, 0.08); border-color: rgba(168, 85, 247, 0.3); }
-        .glow-purple { box-shadow: 0 0 35px -5px rgba(168, 85, 247, 0.3); }
+        .glass-card:hover { background: rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); }
+        .glow-purple { box-shadow: 0 0 35px -5px rgba(168, 85, 247, 0.35); }
         .purple-gradient { background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%); }
     </style>
 </head>
 <body class="h-screen w-screen overflow-hidden flex flex-col select-none">
 
-    <!-- Top Navigation Header -->
-    <header class="h-20 glass-panel border-b border-white/5 px-8 flex justify-between items-center z-30">
+    <!-- Global App Header & View Mode Selector -->
+    <header class="h-20 glass-panel border-b border-white/5 px-6 flex justify-between items-center z-40">
         <div class="flex items-center space-x-4">
             <div class="w-11 h-11 rounded-2xl purple-gradient flex items-center justify-center glow-purple">
                 <i class="fa-solid fa-crown text-white text-lg"></i>
             </div>
             <div>
                 <span class="font-display font-extrabold text-2xl tracking-wider text-white">LUX KARAOKE</span>
-                <p class="text-[10px] text-gray-500 tracking-widest uppercase font-semibold" data-i18n="subtitle">Enterprise System</p>
+                <p class="text-[10px] text-gray-400 tracking-widest uppercase font-semibold">Single-Page Enterprise System</p>
             </div>
         </div>
 
-        <div class="flex items-center space-x-4">
-            <!-- PWA Install Button -->
-            <button id="pwaInstallBtn" onclick="installPWA()" class="hidden px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-2 glow-purple">
-                <i class="fa-solid fa-download"></i> <span data-i18n="installApp">Install App</span>
+        <!-- Mode Switcher Navigation Buttons -->
+        <div class="flex items-center bg-black/60 p-1.5 rounded-2xl border border-white/10 space-x-1">
+            <button onclick="switchView('host')" id="nav-host" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white shadow-lg">
+                <i class="fa-solid fa-desktop mr-1.5"></i> Host View
             </button>
+            <button onclick="switchView('stage')" id="nav-stage" class="px-4 py-2 rounded-xl text-xs font-bold transition text-gray-400 hover:text-white">
+                <i class="fa-solid fa-tv mr-1.5"></i> Stage View
+            </button>
+            <button onclick="switchView('remote')" id="nav-remote" class="px-4 py-2 rounded-xl text-xs font-bold transition text-gray-400 hover:text-white">
+                <i class="fa-solid fa-mobile-screen mr-1.5"></i> Remote Controller
+            </button>
+        </div>
 
-            <!-- Language Switcher -->
+        <div class="flex items-center space-x-4">
+            <!-- Language Selector -->
             <select id="langSelector" onchange="changeLanguage(this.value)" class="bg-black/60 border border-white/10 text-xs text-purple-300 font-bold px-3 py-2 rounded-xl focus:outline-none cursor-pointer">
                 <option value="en">English (EN)</option>
                 <option value="ms">Bahasa Melayu (MS)</option>
                 <option value="zh">中文 (ZH)</option>
             </select>
 
-            <!-- Room PIN & QR Code Container -->
-            <div class="flex items-center space-x-3 bg-black/40 px-4 py-2 rounded-2xl border border-white/5">
-                <div id="qrcode" class="w-9 h-9 bg-white p-0.5 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                    <!-- Instant SVG QR Code Renders Here -->
-                </div>
+            <!-- Room Code & QR Display -->
+            <div class="flex items-center space-x-3 bg-black/40 px-3.5 py-1.5 rounded-2xl border border-white/5">
+                <div id="qrcode" class="w-9 h-9 bg-white p-0.5 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0"></div>
                 <div>
                     <span class="text-[9px] uppercase font-bold text-gray-500 block" data-i18n="roomCode">Room Code</span>
-                    <span id="roomIdDisplay" class="font-mono text-xs font-bold text-purple-400">----</span>
+                    <span id="roomIdDisplay" class="font-mono text-xs font-bold text-purple-400">....</span>
                 </div>
             </div>
 
@@ -66,10 +67,8 @@
         </div>
     </header>
 
-    <!-- Main Workspace -->
-    <main class="flex-1 flex overflow-hidden p-6 gap-6">
-        
-        <!-- Left: Video Player & Controls -->
+    <!-- VIEW CONTAINER 1: HOST SYSTEM DASHBOARD -->
+    <main id="view-host" class="flex-1 flex overflow-hidden p-6 gap-6">
         <section class="flex-1 flex flex-col gap-5">
             <div class="relative flex-1 glass-panel rounded-3xl overflow-hidden glow-purple flex items-center justify-center bg-black/90 border border-white/10">
                 <video id="drivePlayer" class="w-full h-full object-contain hidden" controls></video>
@@ -84,7 +83,6 @@
                 </div>
             </div>
 
-            <!-- Controls Panel -->
             <div class="glass-panel rounded-2xl p-4 flex items-center justify-between gap-6 border border-white/5">
                 <button id="vocalBtn" onclick="toggleVocalFilter()" class="px-4 py-2.5 rounded-xl border border-purple-500/40 text-purple-300 hover:bg-purple-500/10 transition flex items-center gap-2 text-xs font-semibold">
                     <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
@@ -100,118 +98,267 @@
             </div>
         </section>
 
-        <!-- Right Sidebar (Search, Local HDD & Queue) -->
+        <!-- Right Host Control Sidebar -->
         <aside class="w-[420px] glass-panel rounded-3xl flex flex-col overflow-hidden border border-white/5">
-            
-            <!-- Sidebar Navigation Tabs -->
             <div class="flex border-b border-white/5 bg-black/40 p-2 gap-1">
-                <button onclick="switchHostSidebarTab('search')" id="hostTabSearch" class="flex-1 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white" data-i18n="searchTab">
-                    <i class="fa-solid fa-magnifying-glass mr-1"></i> Search
+                <button onclick="switchHostSidebarTab('search')" id="hostTabSearch" class="flex-1 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white">
+                    <i class="fa-solid fa-magnifying-glass mr-1"></i> Add / Search
                 </button>
-                <button onclick="switchHostSidebarTab('queue')" id="hostTabQueue" class="flex-1 py-2 rounded-xl text-xs font-bold transition text-gray-400 hover:text-white" data-i18n="queueTab">
+                <button onclick="switchHostSidebarTab('queue')" id="hostTabQueue" class="flex-1 py-2 rounded-xl text-xs font-bold transition text-gray-400 hover:text-white">
                     <i class="fa-solid fa-list-ul mr-1"></i> Queue (<span id="queueBadgeCount">0</span>)
                 </button>
             </div>
 
-            <!-- Tab 1: Direct Link / Zero-API Input Engine -->
+            <!-- YouTube Input & HDD Indexer -->
             <div id="hostSearchView" class="flex-1 flex flex-col p-4 space-y-3 overflow-hidden">
                 <div class="flex gap-2">
-                    <input type="text" id="hostSearchInput" onkeypress="if(event.key==='Enter') processHostSearchInput()" placeholder="Paste YouTube link or Video ID..." data-i18n-ph="searchPlaceholder" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+                    <input type="text" id="hostSearchInput" onkeypress="if(event.key==='Enter') processHostSearchInput()" placeholder="Paste YouTube link or 11-char ID..." data-i18n-ph="searchPlaceholder" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
                     <button onclick="processHostSearchInput()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 rounded-xl text-xs font-bold transition flex items-center justify-center">
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
 
-                <!-- Local Hard Drive Directory Indexer -->
                 <div class="p-3 bg-white/5 rounded-2xl border border-white/5 space-y-2">
                     <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase" data-i18n="localHdd">Local HDD Indexer</span>
-                        <span id="indexedCountBadge" class="text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-mono">0 HDD Files</span>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase">Local HDD Indexer</span>
+                        <span id="indexedCountBadge" class="text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-mono">0 Files</span>
                     </div>
                     <button onclick="selectAndIndexFolder()" class="w-full bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-purple-300 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-folder-open"></i> <span data-i18n="scanFolder">Scan Folder (HDD/SSD)</span>
+                        <i class="fa-solid fa-folder-open"></i> Scan Local Folder (MP4/MKV)
                     </button>
                 </div>
 
-                <!-- Search Candidate Stream -->
                 <div id="hostSearchResults" class="flex-1 overflow-y-auto space-y-2 pr-1">
-                    <p class="text-center text-xs text-gray-500 py-8" data-i18n="searchPrompt">Paste a YouTube URL/Video ID or scan a local folder above</p>
+                    <p class="text-center text-xs text-gray-500 py-8">Paste a YouTube URL/Video ID or scan a local folder above</p>
                 </div>
             </div>
 
-            <!-- Tab 2: Live Queue Feed -->
             <div id="hostQueueView" class="flex-1 overflow-y-auto p-4 space-y-2 hidden"></div>
         </aside>
     </main>
 
-    <!-- Required Scripts -->
-    <script src="https://www.youtube.com/iframe_api"></script>
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    
-    <script>
-        const i18n = {
-            en: { subtitle: "Enterprise System", roomCode: "Room Code", readyTitle: "Ready for Performance", readyDesc: "Select a track from search, library or mobile remote", vocalFilterOff: "Vocal Filter: OFF", vocalFilterOn: "Vocal Filter: ON", keyLabel: "Key:", searchTab: "Search", queueTab: "Queue", searchPlaceholder: "Paste YouTube link or Video ID...", localHdd: "Local HDD Indexer", scanFolder: "Scan Folder (HDD/SSD)", searchPrompt: "Paste a YouTube URL/Video ID or scan a local folder above", installApp: "Install App" },
-            ms: { subtitle: "Sistem Perusahaan", roomCode: "Kod Bilik", readyTitle: "Bersedia Untuk Persembahan", readyDesc: "Pilih lagu daripada carian, pustaka atau telefon", vocalFilterOff: "Penapis Vokal: TUTUP", vocalFilterOn: "Penapis Vokal: BUKA", keyLabel: "Nada:", searchTab: "Carian", queueTab: "Senarai Lagu", searchPlaceholder: "Tampal pautan YouTube atau ID...", localHdd: "Indeks HDD Tempatan", scanFolder: "Imbas Folder (HDD/SSD)", searchPrompt: "Tampal pautan YouTube atau imbas folder tempatan", installApp: "Pasang Aplikasi" },
-            zh: { subtitle: "企业级卡拉OK系统", roomCode: "房间代码", readyTitle: "准备表演", readyDesc: "从搜索、曲库或手机遥控器选择歌曲", vocalFilterOff: "人声过滤: 关闭", vocalFilterOn: "人声过滤: 开启", keyLabel: "音调:", searchTab: "搜索", queueTab: "播放队列", searchPlaceholder: "粘贴YouTube链接或视频ID...", localHdd: "本地硬盘索引", scanFolder: "扫描文件夹 (硬盘)", searchPrompt: "在上方粘贴YouTube链接或扫描本地文件夹", installApp: "安装应用" }
-        };
+    <!-- VIEW CONTAINER 2: STAGE DISPLAY MONITOR -->
+    <main id="view-stage" class="flex-1 flex flex-col justify-between p-12 hidden relative bg-black">
+        <header class="flex justify-between items-center opacity-80">
+            <div>
+                <span id="nowPerformingTag" class="text-xs font-bold tracking-widest text-purple-400 uppercase block">Now Performing</span>
+                <h1 id="stageTitle" class="text-4xl font-extrabold text-white">Ready on Stage</h1>
+                <p id="stageArtist" class="text-lg text-gray-400 font-medium"></p>
+            </div>
+        </header>
 
+        <div class="flex-1 flex items-center justify-center">
+            <div class="w-full h-80 rounded-3xl bg-gray-950/80 border border-purple-500/20 flex items-center justify-center p-8 glow-purple">
+                <h2 id="lyricsDisplay" class="text-5xl font-black text-center text-purple-200">Get Ready to Sing!</h2>
+            </div>
+        </div>
+
+        <footer class="bg-gray-900/60 border border-gray-800 rounded-2xl p-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span id="upNextBadge" class="px-3 py-1 bg-purple-600 text-white font-bold text-xs rounded-lg uppercase">Up Next</span>
+                <span id="stageNextTrack" class="text-sm font-semibold text-gray-300">Queue is clear</span>
+            </div>
+        </footer>
+    </main>
+
+    <!-- VIEW CONTAINER 3: MOBILE REMOTE CONTROLLER -->
+    <main id="view-remote" class="flex-1 p-6 max-w-md mx-auto w-full space-y-4 hidden overflow-y-auto">
+        <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-4 space-y-3">
+            <h3 class="text-sm font-bold text-purple-400">Add Track to Room Queue</h3>
+            <div class="flex gap-2">
+                <input type="text" id="remoteSearchInput" placeholder="Paste YouTube Link or Video ID..." class="w-full bg-black/60 border border-gray-700 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+                <button onclick="processMobileInput()" class="bg-purple-600 text-white px-4 rounded-xl text-xs font-bold"><i class="fa-solid fa-plus"></i></button>
+            </div>
+            <div id="remoteStatusMsg" class="text-xs text-gray-400"></div>
+        </div>
+
+        <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-4 space-y-2">
+            <h3 class="text-xs font-bold text-gray-400 uppercase">Live Room Queue</h3>
+            <div id="remoteQueueView" class="space-y-2"></div>
+        </div>
+    </main>
+
+    <!-- External YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <script>
+        // GLOBAL SYSTEM STATE & I18N
         let currentLang = 'en';
+        let roomId = "8899";
         let tracks = [
             { id: '1', title: 'Bohemian Rhapsody', artist: 'Queen', src: 'fJ9rUzIMcZQ' },
             { id: '2', title: 'Hotel California', artist: 'Eagles', src: 'EqPtz5qN7HM' }
         ];
-        
-        let audioCtx, currentSemitones = 0, filterActive = false, ytPlayer = null;
-        let roomId = Math.floor(1000 + Math.random() * 9000).toString();
-        let peer = null, activeConnections = [];
         let localMediaFiles = new Map();
-        let deferredPrompt = null;
-        const stageChannel = new BroadcastChannel('lux_stage_channel');
+        let ytPlayer = null;
+        let currentSemitones = 0, filterActive = false;
 
-        // Multi-Language System
-        function autoDetectLanguage() {
-            const browserLang = navigator.language || navigator.userLanguage;
-            if (browserLang.startsWith('ms')) currentLang = 'ms';
-            else if (browserLang.startsWith('zh')) currentLang = 'zh';
-            else currentLang = 'en';
-            document.getElementById('langSelector').value = currentLang;
-            updateTranslations();
-        }
+        // BROWSER-NATIVE CROSS-TAB BROADCAST PIPELINE
+        const appChannel = new BroadcastChannel('lux_karaoke_system');
 
-        function changeLanguage(lang) {
-            currentLang = lang;
-            updateTranslations();
-            // Re-render QR code link with updated language param
-            if (roomId) renderQRCode();
-        }
+        const i18n = {
+            en: { readyTitle: "Ready for Performance", readyDesc: "Select a track from search or library", vocalFilterOff: "Vocal Filter: OFF", vocalFilterOn: "Vocal Filter: ON", keyLabel: "Key:" },
+            ms: { readyTitle: "Bersedia Untuk Persembahan", readyDesc: "Pilih lagu daripada carian atau pustaka", vocalFilterOff: "Penapis Vokal: TUTUP", vocalFilterOn: "Penapis Vokal: BUKA", keyLabel: "Nada:" },
+            zh: { readyTitle: "准备表演", readyDesc: "从搜索或曲库选择歌曲", vocalFilterOff: "人声过滤: 关闭", vocalFilterOn: "人声过滤: 开启", keyLabel: "音调:" }
+        };
 
-        function updateTranslations() {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (i18n[currentLang][key]) el.innerText = i18n[currentLang][key];
-            });
-            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-                const key = el.getAttribute('data-i18n-ph');
-                if (i18n[currentLang][key]) el.placeholder = i18n[currentLang][key];
-            });
-        }
-
-        // PWA Installation API
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('pwaInstallBtn').classList.remove('hidden');
+        // 1. SYSTEM INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            generateRoomId();
+            renderQRCode();
+            renderPlaylist();
+            setupBroadcastListeners();
         });
 
-        async function installPWA() {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            await deferredPrompt.userChoice;
-            deferredPrompt = null;
-            document.getElementById('pwaInstallBtn').classList.add('hidden');
+        function generateRoomId() {
+            roomId = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById('roomIdDisplay').innerText = roomId;
         }
 
-        // YouTube IFrame Player Setup
+        // Direct Inline SVG QR Code Generation (Zero External API Dependency)
+        function renderQRCode() {
+            const currentUrl = window.location.href.split('?')[0];
+            const qrTarget = `${currentUrl}?room=${roomId}`;
+            const container = document.getElementById("qrcode");
+            container.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrTarget)}" class="w-full h-full object-contain">`;
+        }
+
+        // 2. VIEW SWITCHER SYSTEM
+        function switchView(viewName) {
+            ['host', 'stage', 'remote'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.toggle('hidden', v !== viewName);
+                const navBtn = document.getElementById(`nav-${v}`);
+                if (v === viewName) {
+                    navBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white shadow-lg";
+                } else {
+                    navBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition text-gray-400 hover:text-white";
+                }
+            });
+        }
+
+        // 3. ROBUST YOUTUBE LINK PARSER (Handles all YouTube URL formats & 11-char IDs)
+        function parseYouTubeId(input) {
+            if (!input) return null;
+            const str = input.trim();
+            if (/^[a-zA-Z0-9_-]{11}$/.test(str)) return str;
+
+            try {
+                const url = new URL(str.startsWith('http') ? str : `https://${str}`);
+                if (url.hostname.includes('youtu.be')) return url.pathname.slice(1);
+                if (url.searchParams.has('v')) return url.searchParams.get('v');
+                const pathParts = url.pathname.split('/');
+                if (pathParts.includes('embed') || pathParts.includes('v') || pathParts.includes('shorts')) {
+                    return pathParts[pathParts.length - 1];
+                }
+            } catch (e) {
+                const match = str.match(/(?:youtu\.be\/|watch\?v=|\/v\/|\/embed\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
+                if (match && match[1]) return match[1];
+            }
+            return null;
+        }
+
+        // 4. QUEUE & PLAYBACK CONTROLLER
+        function processHostSearchInput() {
+            const input = document.getElementById('hostSearchInput').value;
+            const videoId = parseYouTubeId(input);
+            const container = document.getElementById('hostSearchResults');
+
+            if (!videoId) {
+                container.innerHTML = `<div class="p-3 bg-red-950/40 border border-red-800/50 rounded-xl text-center text-xs text-red-400 font-bold">Invalid YouTube Link or Video ID!</div>`;
+                return;
+            }
+
+            addTrackToQueue(videoId, `YouTube Video (${videoId})`, 'Online Stream');
+            document.getElementById('hostSearchInput').value = '';
+            container.innerHTML = `<div class="p-3 bg-emerald-950/40 border border-emerald-800/50 rounded-xl text-center text-xs text-emerald-400 font-bold">Successfully Added to Playlist!</div>`;
+        }
+
+        function processMobileInput() {
+            const input = document.getElementById('remoteSearchInput').value;
+            const videoId = parseYouTubeId(input);
+            const statusEl = document.getElementById('remoteStatusMsg');
+
+            if (!videoId) {
+                statusEl.innerText = "Error: Invalid Link or ID!";
+                statusEl.className = "text-xs text-red-400 font-bold";
+                return;
+            }
+
+            addTrackToQueue(videoId, `YouTube Video (${videoId})`, 'Remote Mobile');
+            document.getElementById('remoteSearchInput').value = '';
+            statusEl.innerText = "Queued successfully!";
+            statusEl.className = "text-xs text-emerald-400 font-bold";
+        }
+
+        function addTrackToQueue(src, title, artist) {
+            const newTrack = { id: Date.now().toString(), title, artist, src };
+            tracks.push(newTrack);
+            
+            renderPlaylist();
+            appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks });
+
+            const idleState = document.getElementById('idleState');
+            if (idleState && !idleState.classList.contains('hidden')) {
+                playTrack(src);
+            }
+        }
+
+        function renderPlaylist() {
+            const hostContainer = document.getElementById('hostQueueView');
+            const remoteContainer = document.getElementById('remoteQueueView');
+            document.getElementById('queueBadgeCount').innerText = tracks.length;
+
+            let html = '';
+            tracks.forEach((t, i) => {
+                html += `
+                <div class="glass-card p-3 rounded-2xl flex items-center justify-between">
+                    <div class="flex items-center space-x-3 truncate">
+                        <span class="text-xs font-bold text-purple-400 font-mono">${i + 1}</span>
+                        <div class="truncate">
+                            <h4 class="text-xs font-bold text-gray-200 truncate">${t.title}</h4>
+                            <p class="text-[10px] text-gray-500 truncate">${t.artist}</p>
+                        </div>
+                    </div>
+                    <button onclick="removeTrack(${i})" class="text-red-400 text-xs px-2"><i class="fa-solid fa-trash"></i></button>
+                </div>`;
+            });
+
+            if (hostContainer) hostContainer.innerHTML = html;
+            if (remoteContainer) remoteContainer.innerHTML = html;
+
+            const nextTrack = tracks[1] || null;
+            document.getElementById('stageNextTrack').innerText = nextTrack ? `${nextTrack.title} - ${nextTrack.artist}` : 'Queue is clear';
+        }
+
+        function removeTrack(index) {
+            tracks.splice(index, 1);
+            renderPlaylist();
+            appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks });
+        }
+
+        function playTrack(src) {
+            document.getElementById('idleState').classList.add('hidden');
+            const current = tracks.find(t => t.src === src) || { title: 'Selected Track', artist: 'Karaoke Performance' };
+
+            // Update Stage Display Info
+            document.getElementById('stageTitle').innerText = current.title;
+            document.getElementById('stageArtist').innerText = current.artist;
+
+            if (localMediaFiles.has(src)) {
+                document.getElementById('ytPlayerContainer').classList.add('hidden');
+                const drivePlayer = document.getElementById('drivePlayer');
+                drivePlayer.classList.remove('hidden');
+                drivePlayer.src = URL.createObjectURL(localMediaFiles.get(src));
+                drivePlayer.play();
+                return;
+            }
+
+            document.getElementById('drivePlayer').classList.add('hidden');
+            document.getElementById('ytPlayerContainer').classList.remove('hidden');
+            if (ytPlayer && ytPlayer.loadVideoById) ytPlayer.loadVideoById(src);
+        }
+
+        // 5. YOUTUBE IFRAME PLAYER API
         function onYouTubeIframeAPIReady() {
             ytPlayer = new YT.Player('ytPlayer', {
                 height: '100%', width: '100%',
@@ -220,163 +367,40 @@
             });
         }
 
-        // Reliable QR Code Generation Engine
-        function renderQRCode() {
-            const remoteUrl = `${window.location.origin}/remote.html?room=${roomId}&lang=${currentLang}`;
-            const qrContainer = document.getElementById("qrcode");
-            qrContainer.innerHTML = `
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(remoteUrl)}" 
-                     alt="Room QR Code" 
-                     class="w-full h-full rounded object-contain">
-            `;
-        }
-
-        // WebRTC Server Initialization
-        function initHostRemoteServer() {
-            document.getElementById('roomIdDisplay').innerText = roomId;
-            renderQRCode();
-
-            try {
-                peer = new Peer(`lux-karaoke-${roomId}`, {
-                    config: { 
-                        iceServers: [
-                            { urls: 'stun:stun.l.google.com:19302' },
-                            { urls: 'stun:stun1.l.google.com:19302' }
-                        ] 
-                    },
-                    debug: 1
-                });
-
-                peer.on('open', (id) => {
-                    console.log('PeerJS Host Server Online. Room PIN:', roomId);
-                });
-
-                peer.on('connection', (conn) => {
-                    activeConnections.push(conn);
-                    conn.on('open', () => conn.send({ type: 'SYNC_QUEUE', queue: tracks }));
-                    conn.on('data', (data) => {
-                        if (data.type === 'QUEUE_TRACK') {
-                            tracks.push(data.track);
-                            renderPlaylist();
-                            broadcastQueue();
-                        } else if (data.type === 'REMOVE_TRACK') {
-                            tracks.splice(data.index, 1);
-                            renderPlaylist();
-                            broadcastQueue();
-                        }
-                    });
-                });
-
-                peer.on('error', (err) => {
-                    console.warn('PeerJS Warning:', err.type);
-                    if (err.type === 'unavailable-id') {
-                        roomId = Math.floor(1000 + Math.random() * 9000).toString();
-                        initHostRemoteServer();
-                    }
-                });
-            } catch (e) {
-                console.error("PeerJS initialization failed:", e);
+        function playNextTrack() {
+            if (tracks.length > 1) {
+                tracks.shift();
+                renderPlaylist();
+                appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks });
+                playTrack(tracks[0].src);
             }
         }
 
-        function broadcastQueue() {
-            activeConnections.forEach(conn => { if (conn.open) conn.send({ type: 'SYNC_QUEUE', queue: tracks }); });
-        }
-
-        // Zero-API YouTube Link Parser
-        function extractYouTubeId(input) {
-            if (!input) return null;
-            const str = input.trim();
-            if (/^[a-zA-Z0-9_-]{11}$/.test(str)) return str;
-            const regExp = /(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-            const match = str.match(regExp);
-            return (match && match[1]) ? match[1] : null;
-        }
-
-        function processHostSearchInput() {
-            const input = document.getElementById('hostSearchInput').value;
-            const videoId = extractYouTubeId(input);
-            const container = document.getElementById('hostSearchResults');
-
-            if (!videoId) {
-                container.innerHTML = `
-                    <div class="p-3 bg-red-950/40 border border-red-800/50 rounded-xl text-center">
-                        <p class="text-xs text-red-400 font-semibold">Invalid YouTube Link</p>
-                        <p class="text-[10px] text-gray-400 mt-1">Please paste a valid YouTube video URL or 11-character ID.</p>
-                    </div>`;
-                return;
-            }
-
-            const thumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-            container.innerHTML = `
-                <div class="glass-card p-2.5 rounded-xl flex items-center justify-between gap-3 border border-purple-500/40">
-                    <div class="flex items-center space-x-3 overflow-hidden">
-                        <img src="${thumbnail}" alt="Thumb" class="w-14 h-10 object-cover rounded-lg bg-gray-900 flex-shrink-0">
-                        <div class="truncate">
-                            <h4 class="text-xs font-bold text-purple-300 truncate">YouTube Stream (${videoId})</h4>
-                            <p class="text-[10px] text-gray-500">Ready to Add</p>
-                        </div>
-                    </div>
-                    <button id="addTrackBtn" data-videoid="${videoId}" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex-shrink-0 transition">
-                        + Add Track
-                    </button>
-                </div>`;
-
-            document.getElementById('addTrackBtn').onclick = function() {
-                const id = this.getAttribute('data-videoid');
-                addTrackToQueue(id, `YouTube Track (${id})`, 'Direct Link');
-            };
-        }
-
-        function addTrackToQueue(src, title, artist) {
-            tracks.push({ id: Date.now().toString(), title, artist, src });
-            renderPlaylist();
-            broadcastQueue();
-
-            document.getElementById('hostSearchInput').value = '';
-            document.getElementById('hostSearchResults').innerHTML = `
-                <div class="p-3 bg-emerald-950/40 border border-emerald-800/50 rounded-xl text-center">
-                    <p class="text-xs text-emerald-400 font-semibold">Track Added to Queue!</p>
-                </div>`;
-
-            const idleState = document.getElementById('idleState');
-            if (idleState && !idleState.classList.contains('hidden')) {
-                playTrack(src);
-            }
-        }
-
-        // Offline HDD Directory Scanner
+        // 6. LOCAL MEDIA HDD SCANNER ENGINE
         async function selectAndIndexFolder() {
             if (!('showDirectoryPicker' in window)) {
-                alert("Directory indexing is supported on Chrome, Edge, and modern desktop browsers.");
+                alert("Directory indexing requires Chrome or Edge desktop browser.");
                 return;
             }
             try {
                 const dirHandle = await window.showDirectoryPicker();
                 localMediaFiles.clear();
-                let scannedCount = 0;
+                let count = 0;
 
                 for await (const entry of getFilesRecursively(dirHandle)) {
                     if (entry.name.match(/\.(mp4|mkv|webm|mp3|wav)$/i)) {
                         const file = await entry.getFile();
-                        const cleanName = entry.name.substring(0, entry.name.lastIndexOf('.'));
-                        let artist = "Local HDD", title = cleanName;
-                        if (cleanName.includes(' - ')) {
-                            const parts = cleanName.split(' - ');
-                            artist = parts[0].trim();
-                            title = parts.slice(1).join(' - ').trim();
-                        }
-                        const uniqueId = `hdd_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
-                        localMediaFiles.set(uniqueId, file);
-                        tracks.push({ id: uniqueId, title, artist, src: uniqueId, isLocalFile: true });
-                        scannedCount++;
+                        const id = `hdd_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+                        localMediaFiles.set(id, file);
+                        tracks.push({ id, title: entry.name, artist: 'Local HDD Storage', src: id });
+                        count++;
                     }
                 }
-                document.getElementById('indexedCountBadge').innerText = `${scannedCount} HDD Files`;
+                document.getElementById('indexedCountBadge').innerText = `${count} Files`;
                 renderPlaylist();
-                broadcastQueue();
+                appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks });
             } catch (err) {
-                if (err.name !== 'AbortError') console.error("Indexing error:", err);
+                if (err.name !== 'AbortError') console.error(err);
             }
         }
 
@@ -387,56 +411,14 @@
             }
         }
 
-        // Queue & Playback Controller
-        function renderPlaylist() {
-            const container = document.getElementById('hostQueueView');
-            container.innerHTML = '';
-            document.getElementById('queueBadgeCount').innerText = tracks.length;
-
-            tracks.forEach((track, i) => {
-                const card = document.createElement('div');
-                card.className = "glass-card p-3 rounded-2xl flex items-center justify-between cursor-pointer";
-                card.onclick = () => playTrack(track.src);
-                card.innerHTML = `
-                    <div class="flex items-center space-x-3 overflow-hidden">
-                        <span class="text-xs font-bold text-purple-400 font-mono w-4">${i + 1}</span>
-                        <div class="truncate">
-                            <h4 class="text-xs font-bold text-gray-200 truncate">${track.title}</h4>
-                            <p class="text-[10px] text-gray-500 truncate">${track.artist}</p>
-                        </div>
-                    </div>`;
-                container.appendChild(card);
-            });
-        }
-
-        function playTrack(trackIdOrSrc) {
-            document.getElementById('idleState').classList.add('hidden');
-
-            if (localMediaFiles.has(trackIdOrSrc)) {
-                const file = localMediaFiles.get(trackIdOrSrc);
-                document.getElementById('ytPlayerContainer').classList.add('hidden');
-                const drivePlayer = document.getElementById('drivePlayer');
-                drivePlayer.classList.remove('hidden');
-                drivePlayer.src = URL.createObjectURL(file);
-                drivePlayer.play();
-                stageChannel.postMessage({ type: 'SYNC_TRACK', title: file.name, artist: 'Local HDD Storage', nextTrack: tracks[1] || null, lang: currentLang });
-                return;
-            }
-
-            document.getElementById('drivePlayer').classList.add('hidden');
-            document.getElementById('ytPlayerContainer').classList.remove('hidden');
-            const current = tracks.find(t => t.src === trackIdOrSrc) || { title: 'Track', artist: 'Artist' };
-            stageChannel.postMessage({ type: 'SYNC_TRACK', title: current.title, artist: current.artist, nextTrack: tracks[1] || null, lang: currentLang });
-            if (ytPlayer && ytPlayer.loadVideoById) ytPlayer.loadVideoById(trackIdOrSrc);
-        }
-
-        function playNextTrack() {
-            if (tracks.length > 1) {
-                tracks.shift();
-                renderPlaylist();
-                broadcastQueue();
-                playTrack(tracks[0].src);
-            }
+        // 7. HELPER FUNCTIONS
+        function setupBroadcastListeners() {
+            appChannel.onmessage = (event) => {
+                if (event.data.type === 'QUEUE_UPDATE') {
+                    tracks = event.data.queue;
+                    renderPlaylist();
+                }
+            };
         }
 
         function switchHostSidebarTab(tab) {
@@ -444,6 +426,14 @@
             document.getElementById('hostQueueView').classList.toggle('hidden', tab !== 'queue');
             document.getElementById('hostTabSearch').className = tab === 'search' ? 'flex-1 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white' : 'flex-1 py-2 rounded-xl text-xs font-bold transition text-gray-400 hover:text-white';
             document.getElementById('hostTabQueue').className = tab === 'queue' ? 'flex-1 py-2 rounded-xl text-xs font-bold transition bg-purple-600 text-white' : 'flex-1 py-2 rounded-xl text-xs font-bold transition text-gray-400 hover:text-white';
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[currentLang][key]) el.innerText = i18n[currentLang][key];
+            });
         }
 
         function changePitch(delta) {
@@ -455,15 +445,6 @@
             filterActive = !filterActive;
             const statusKey = filterActive ? 'vocalFilterOn' : 'vocalFilterOff';
             document.getElementById('vocalStatus').innerText = i18n[currentLang][statusKey];
-        }
-
-        // Initialize App
-        autoDetectLanguage();
-        renderPlaylist();
-        initHostRemoteServer();
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Registration error:', err));
         }
     </script>
 </body>
