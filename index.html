@@ -49,16 +49,16 @@
                 <option value="zh">中文 (ZH)</option>
             </select>
 
-            <!-- Room PIN & QR Code -->
+            <!-- Room PIN & QR Code Container -->
             <div class="flex items-center space-x-3 bg-black/40 px-4 py-2 rounded-2xl border border-white/5">
-    <div id="qrcode" class="w-9 h-9 bg-white p-0.5 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-        <!-- QR Code renders here dynamically -->
-    </div>
-    <div>
-        <span class="text-[9px] uppercase font-bold text-gray-500 block" data-i18n="roomCode">Room Code</span>
-        <span id="roomIdDisplay" class="font-mono text-xs font-bold text-purple-400">CONNECTING...</span>
-    </div>
-</div>
+                <div id="qrcode" class="w-9 h-9 bg-white p-0.5 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                    <!-- Instant SVG QR Code Renders Here -->
+                </div>
+                <div>
+                    <span class="text-[9px] uppercase font-bold text-gray-500 block" data-i18n="roomCode">Room Code</span>
+                    <span id="roomIdDisplay" class="font-mono text-xs font-bold text-purple-400">----</span>
+                </div>
+            </div>
 
             <button onclick="document.documentElement.requestFullscreen()" class="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-gray-400 hover:text-white transition">
                 <i class="fa-solid fa-expand text-sm"></i>
@@ -113,7 +113,7 @@
                 </button>
             </div>
 
-            <!-- Tab 1: Direct Link / API Search Engine -->
+            <!-- Tab 1: Direct Link / Zero-API Input Engine -->
             <div id="hostSearchView" class="flex-1 flex flex-col p-4 space-y-3 overflow-hidden">
                 <div class="flex gap-2">
                     <input type="text" id="hostSearchInput" onkeypress="if(event.key==='Enter') processHostSearchInput()" placeholder="Paste YouTube link or Video ID..." data-i18n-ph="searchPlaceholder" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
@@ -133,20 +133,20 @@
                     </button>
                 </div>
 
-                <!-- Search / Candidate Results Stream -->
+                <!-- Search Candidate Stream -->
                 <div id="hostSearchResults" class="flex-1 overflow-y-auto space-y-2 pr-1">
                     <p class="text-center text-xs text-gray-500 py-8" data-i18n="searchPrompt">Paste a YouTube URL/Video ID or scan a local folder above</p>
                 </div>
             </div>
 
             <!-- Tab 2: Live Queue Feed -->
-            <div id="hostQueueView" class="flex-1 overflow-y-auto p-4 space-y-2 hidden" id="playlistContainer"></div>
+            <div id="hostQueueView" class="flex-1 overflow-y-auto p-4 space-y-2 hidden"></div>
         </aside>
     </main>
 
+    <!-- Required Scripts -->
     <script src="https://www.youtube.com/iframe_api"></script>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
     <script>
         const i18n = {
@@ -168,7 +168,7 @@
         let deferredPrompt = null;
         const stageChannel = new BroadcastChannel('lux_stage_channel');
 
-        // Language & I18n Engine
+        // Multi-Language System
         function autoDetectLanguage() {
             const browserLang = navigator.language || navigator.userLanguage;
             if (browserLang.startsWith('ms')) currentLang = 'ms';
@@ -181,6 +181,8 @@
         function changeLanguage(lang) {
             currentLang = lang;
             updateTranslations();
+            // Re-render QR code link with updated language param
+            if (roomId) renderQRCode();
         }
 
         function updateTranslations() {
@@ -194,7 +196,7 @@
             });
         }
 
-        // PWA Installation Hook
+        // PWA Installation API
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -209,13 +211,76 @@
             document.getElementById('pwaInstallBtn').classList.add('hidden');
         }
 
-        // YouTube IFrame API Initialization
+        // YouTube IFrame Player Setup
         function onYouTubeIframeAPIReady() {
             ytPlayer = new YT.Player('ytPlayer', {
                 height: '100%', width: '100%',
                 playerVars: { 'autoplay': 1, 'controls': 1 },
                 events: { 'onStateChange': (e) => { if (e.data === YT.PlayerState.ENDED) playNextTrack(); } }
             });
+        }
+
+        // Reliable QR Code Generation Engine
+        function renderQRCode() {
+            const remoteUrl = `${window.location.origin}/remote.html?room=${roomId}&lang=${currentLang}`;
+            const qrContainer = document.getElementById("qrcode");
+            qrContainer.innerHTML = `
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(remoteUrl)}" 
+                     alt="Room QR Code" 
+                     class="w-full h-full rounded object-contain">
+            `;
+        }
+
+        // WebRTC Server Initialization
+        function initHostRemoteServer() {
+            document.getElementById('roomIdDisplay').innerText = roomId;
+            renderQRCode();
+
+            try {
+                peer = new Peer(`lux-karaoke-${roomId}`, {
+                    config: { 
+                        iceServers: [
+                            { urls: 'stun:stun.l.google.com:19302' },
+                            { urls: 'stun:stun1.l.google.com:19302' }
+                        ] 
+                    },
+                    debug: 1
+                });
+
+                peer.on('open', (id) => {
+                    console.log('PeerJS Host Server Online. Room PIN:', roomId);
+                });
+
+                peer.on('connection', (conn) => {
+                    activeConnections.push(conn);
+                    conn.on('open', () => conn.send({ type: 'SYNC_QUEUE', queue: tracks }));
+                    conn.on('data', (data) => {
+                        if (data.type === 'QUEUE_TRACK') {
+                            tracks.push(data.track);
+                            renderPlaylist();
+                            broadcastQueue();
+                        } else if (data.type === 'REMOVE_TRACK') {
+                            tracks.splice(data.index, 1);
+                            renderPlaylist();
+                            broadcastQueue();
+                        }
+                    });
+                });
+
+                peer.on('error', (err) => {
+                    console.warn('PeerJS Warning:', err.type);
+                    if (err.type === 'unavailable-id') {
+                        roomId = Math.floor(1000 + Math.random() * 9000).toString();
+                        initHostRemoteServer();
+                    }
+                });
+            } catch (e) {
+                console.error("PeerJS initialization failed:", e);
+            }
+        }
+
+        function broadcastQueue() {
+            activeConnections.forEach(conn => { if (conn.open) conn.send({ type: 'SYNC_QUEUE', queue: tracks }); });
         }
 
         // Zero-API YouTube Link Parser
@@ -252,20 +317,35 @@
                             <p class="text-[10px] text-gray-500">Ready to Add</p>
                         </div>
                     </div>
-                    <button onclick="addTrackToQueue('${videoId}', 'YouTube Stream (${videoId})', 'Direct Link')" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex-shrink-0 transition">
+                    <button id="addTrackBtn" data-videoid="${videoId}" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex-shrink-0 transition">
                         + Add Track
                     </button>
                 </div>`;
+
+            document.getElementById('addTrackBtn').onclick = function() {
+                const id = this.getAttribute('data-videoid');
+                addTrackToQueue(id, `YouTube Track (${id})`, 'Direct Link');
+            };
         }
 
         function addTrackToQueue(src, title, artist) {
             tracks.push({ id: Date.now().toString(), title, artist, src });
             renderPlaylist();
             broadcastQueue();
-            if (!document.getElementById('idleState').classList.contains('hidden')) playTrack(src);
+
+            document.getElementById('hostSearchInput').value = '';
+            document.getElementById('hostSearchResults').innerHTML = `
+                <div class="p-3 bg-emerald-950/40 border border-emerald-800/50 rounded-xl text-center">
+                    <p class="text-xs text-emerald-400 font-semibold">Track Added to Queue!</p>
+                </div>`;
+
+            const idleState = document.getElementById('idleState');
+            if (idleState && !idleState.classList.contains('hidden')) {
+                playTrack(src);
+            }
         }
 
-        // Offline Hard Drive Directory Indexer
+        // Offline HDD Directory Scanner
         async function selectAndIndexFolder() {
             if (!('showDirectoryPicker' in window)) {
                 alert("Directory indexing is supported on Chrome, Edge, and modern desktop browsers.");
@@ -307,70 +387,7 @@
             }
         }
 
-        // WebRTC Server Setup
-        function initHostRemoteServer() {
-    // 1. Instantly display Room PIN so UI never hangs
-    document.getElementById('roomIdDisplay').innerText = roomId;
-
-    // 2. Build direct connection URL for mobile remotes
-    const remoteUrl = `${window.location.origin}/remote.html?room=${roomId}&lang=${currentLang}`;
-
-    // 3. Render clean, high-resolution QR Code instantly via SVG Image
-    const qrContainer = document.getElementById("qrcode");
-    qrContainer.innerHTML = `
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(remoteUrl)}" 
-             alt="Room QR Code" 
-             class="w-full h-full rounded object-contain">
-    `;
-
-    // 4. Initialize PeerJS WebRTC Connection
-    try {
-        peer = new Peer(`lux-karaoke-${roomId}`, {
-            config: { 
-                iceServers: [
-                    { urls: 'stun:stun.l.google.com:19302' },
-                    { urls: 'stun:stun1.l.google.com:19302' }
-                ] 
-            },
-            debug: 1
-        });
-
-        peer.on('open', (id) => {
-            console.log('PeerJS Host Server Online. Room PIN:', roomId);
-        });
-
-        peer.on('connection', (conn) => {
-            activeConnections.push(conn);
-            conn.on('open', () => conn.send({ type: 'SYNC_QUEUE', queue: tracks }));
-            conn.on('data', (data) => {
-                if (data.type === 'QUEUE_TRACK') {
-                    tracks.push(data.track);
-                    renderPlaylist();
-                    broadcastQueue();
-                } else if (data.type === 'REMOVE_TRACK') {
-                    tracks.splice(data.index, 1);
-                    renderPlaylist();
-                    broadcastQueue();
-                }
-            });
-        });
-
-        peer.on('error', (err) => {
-            console.warn('PeerJS connection warning:', err.type);
-            if (err.type === 'unavailable-id') {
-                roomId = Math.floor(1000 + Math.random() * 9000).toString();
-                initHostRemoteServer();
-            }
-        });
-    } catch (e) {
-        console.error("PeerJS initialization failed:", e);
-    }
-}
-
-        function broadcastQueue() {
-            activeConnections.forEach(conn => { if (conn.open) conn.send({ type: 'SYNC_QUEUE', queue: tracks }); });
-        }
-
+        // Queue & Playback Controller
         function renderPlaylist() {
             const container = document.getElementById('hostQueueView');
             container.innerHTML = '';
@@ -402,7 +419,7 @@
                 drivePlayer.classList.remove('hidden');
                 drivePlayer.src = URL.createObjectURL(file);
                 drivePlayer.play();
-                stageChannel.postMessage({ type: 'SYNC_TRACK', title: file.name, artist: 'Local Storage', nextTrack: tracks[1] || null, lang: currentLang });
+                stageChannel.postMessage({ type: 'SYNC_TRACK', title: file.name, artist: 'Local HDD Storage', nextTrack: tracks[1] || null, lang: currentLang });
                 return;
             }
 
@@ -440,12 +457,13 @@
             document.getElementById('vocalStatus').innerText = i18n[currentLang][statusKey];
         }
 
+        // Initialize App
         autoDetectLanguage();
         renderPlaylist();
         initHostRemoteServer();
 
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration error:', err));
+            navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Registration error:', err));
         }
     </script>
 </body>
