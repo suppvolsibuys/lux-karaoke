@@ -36,10 +36,11 @@
         .sidebar-tab { flex: 1; padding: 8px; border-radius: 8px; border: none; font-size: 11px; font-weight: bold; color: #9ca3af; background: transparent; cursor: pointer; }
         .sidebar-tab.active { background: #a855f7; color: white; }
 
-        .album-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px; overflow-y: auto; flex: 1; }
-        .album-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
-        .album-card:hover { border-color: #a855f7; background: rgba(168,85,247,0.1); }
-        .album-thumb { height: 60px; border-radius: 6px; background: linear-gradient(135deg, #4c1d95, #1e1b4b); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        /* Compact & Organized Album Grid (3 Columns) */
+        .album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; overflow-y: auto; flex: 1; align-content: start; }
+        .album-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; transition: all 0.2s; }
+        .album-card:hover { border-color: #a855f7; background: rgba(168,85,247,0.15); transform: translateY(-2px); }
+        .album-thumb { width: 42px; height: 42px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #a855f7); display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 8px rgba(168,85,247,0.3); }
 
         .control-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 8px; }
         .stat-card { background: rgba(0,0,0,0.4); padding: 6px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
@@ -50,7 +51,7 @@
         .track-item { padding: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05); }
 
         .osk-container { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; padding: 8px; background: rgba(0,0,0,0.6); border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); }
-        .osk-key { padding: 10px 0; text-align: center; background: rgba(255,255,255,0.05); border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; color: #d1d5db; }
+        .osk-key { padding: 8px 0; text-align: center; background: rgba(255,255,255,0.05); border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; color: #d1d5db; }
         .osk-key:active { background: #a855f7; color: white; }
 
         .hidden { display: none !important; }
@@ -112,12 +113,14 @@
                 </div>
             </div>
 
+            <!-- Master Controls Panel -->
             <div class="glass-panel" style="padding: 12px 16px; border-radius: 14px; display: flex; flex-direction: column; gap: 8px;">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <div style="display: flex; gap: 6px;">
-                        <button onclick="togglePlayPause()" class="btn btn-primary focusable" style="width: 36px; height: 36px; padding: 0;">▶</button>
-                        <button onclick="playNextTrack()" class="btn glass-card focusable" style="width: 36px; height: 36px; padding: 0;">⏭</button>
-                        <button onclick="restartTrack()" class="btn glass-card focusable" style="width: 36px; height: 36px; padding: 0;">🔄</button>
+                        <button onclick="togglePlayPause()" class="btn btn-primary focusable" style="width: 36px; height: 36px; padding: 0;" title="Play / Pause">▶</button>
+                        <button onclick="stopPlayback()" class="btn btn-danger focusable" style="width: 36px; height: 36px; padding: 0;" title="Stop Playback">⏹</button>
+                        <button onclick="playNextTrack()" class="btn glass-card focusable" style="width: 36px; height: 36px; padding: 0;" title="Next Track">⏭</button>
+                        <button onclick="restartTrack()" class="btn glass-card focusable" style="width: 36px; height: 36px; padding: 0;" title="Restart Song">🔄</button>
                     </div>
 
                     <div class="text-center" style="flex: 1; padding: 0 12px;">
@@ -180,14 +183,14 @@
 
             <div id="hostLibraryView" style="padding: 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; overflow: hidden;">
                 <input type="file" id="bundlePicker" accept="video/*,audio/*,.lrc" multiple webkitdirectory directory onchange="loadBundleFolder(event)" style="display: none;">
-                <input type="file" id="mediaFilePicker" accept="video/*,audio/*" multiple onchange="loadPickedFiles(event)" style="display: none;">
+                <input type="file" id="mediaFilePicker" accept="video/*,audio/*,.lrc" multiple onchange="loadPickedFiles(event)" style="display: none;">
 
                 <div style="display: flex; gap: 6px;">
                     <button onclick="document.getElementById('bundlePicker').click()" class="btn btn-primary focusable" style="flex: 1; padding: 10px;">
                         📁 Folder Indexer (Video + .LRC)
                     </button>
                     <button onclick="document.getElementById('mediaFilePicker').click()" class="btn glass-card focusable" style="padding: 10px;">
-                        📄 Add Files
+                        📄 Add Files (+ .LRC)
                     </button>
                 </div>
 
@@ -277,11 +280,9 @@
             <button onclick="switchRemoteTab('queue')" id="remoteTabQueueBtn" class="btn glass-card" style="font-size: 10px;">Room Queue</button>
         </div>
 
-        <!-- Remote Song Search View -->
         <div id="remoteSearchView" style="flex: 1; display: flex; flex-direction: column; gap: 10px; overflow: hidden;">
             <input type="text" id="remoteSearchInput" placeholder="Search Song Title or Artist..." oninput="filterRemoteCatalog(this.value)" style="padding: 12px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 12px; width: 100%;">
 
-            <!-- Mobile Touch OSK -->
             <div class="osk-container">
                 <div class="osk-key" onclick="typeRemoteKey('Q')">Q</div><div class="osk-key" onclick="typeRemoteKey('W')">W</div><div class="osk-key" onclick="typeRemoteKey('E')">E</div><div class="osk-key" onclick="typeRemoteKey('R')">R</div><div class="osk-key" onclick="typeRemoteKey('T')">T</div><div class="osk-key" onclick="typeRemoteKey('Y')">Y</div><div class="osk-key" onclick="typeRemoteKey('U')">U</div><div class="osk-key" onclick="typeRemoteKey('I')">I</div><div class="osk-key" onclick="typeRemoteKey('O')">O</div><div class="osk-key" onclick="typeRemoteKey('P')">P</div>
                 <div class="osk-key" onclick="typeRemoteKey('A')">A</div><div class="osk-key" onclick="typeRemoteKey('S')">S</div><div class="osk-key" onclick="typeRemoteKey('D')">D</div><div class="osk-key" onclick="typeRemoteKey('F')">F</div><div class="osk-key" onclick="typeRemoteKey('G')">G</div><div class="osk-key" onclick="typeRemoteKey('H')">H</div><div class="osk-key" onclick="typeRemoteKey('J')">J</div><div class="osk-key" onclick="typeRemoteKey('K')">K</div><div class="osk-key" onclick="typeRemoteKey('L')">L</div><div class="osk-key" onclick="typeRemoteBackspace()">⌫</div>
@@ -291,7 +292,6 @@
             <div id="remoteCatalogList" class="track-list" style="padding: 0;"></div>
         </div>
 
-        <!-- Remote Queue Management View -->
         <div id="remoteQueueViewContainer" class="hidden" style="flex: 1; display: flex; flex-direction: column; gap: 8px; overflow: hidden;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h4 class="text-muted">Live Room Queue</h4>
@@ -317,9 +317,12 @@
         let tracks = [];
         let localMediaFiles = new Map();
         let localLrcFiles = new Map();
-        let roomId = Math.floor(1000 + Math.random() * 9000).toString();
-        let currentPitch = 0, currentSpeed = 1.0;
         
+        const urlParams = new URLSearchParams(window.location.search);
+        let targetPin = urlParams.get('pin');
+        let roomId = targetPin || Math.floor(1000 + Math.random() * 9000).toString();
+        
+        let currentPitch = 0, currentSpeed = 1.0;
         let audioCtx, mediaSourceNode, splitterNode, mergerNode, gainNodeMusic;
         let vocalModeState = 0;
         let currentLrcData = [];
@@ -328,18 +331,19 @@
         const appChannel = new BroadcastChannel('lux_karaoke_enterprise_channel');
 
         window.addEventListener('DOMContentLoaded', () => {
-            // Read URL Parameters to handle mobile QR redirects
-            const urlParams = new URLSearchParams(window.location.search);
             const viewParam = urlParams.get('view');
 
             document.getElementById('roomIdDisplay').innerText = roomId;
             document.getElementById('modalRoomId').innerText = roomId;
             
+            if (targetPin) {
+                document.getElementById('authPinInput').value = targetPin;
+            }
+            
             renderQRCodes();
             renderPlaylist();
             setupAndroidTVRemoteSupport();
 
-            // Direct route mobile device users to Room PIN Verification Screen
             if (viewParam === 'remote' || viewParam === 'auth') {
                 document.getElementById('appHeader').style.display = 'none';
                 switchView('auth');
@@ -349,21 +353,29 @@
                 navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW:', err));
             }
 
+            document.getElementById('drivePlayer').addEventListener('ended', playNextTrack);
+
             appChannel.onmessage = (e) => {
                 if (e.data.type === 'QUEUE_UPDATE') {
                     tracks = e.data.queue;
                     renderPlaylist();
+                    filterCatalog(document.getElementById('hostSearchInput').value);
                 } else if (e.data.type === 'CATALOG_UPDATE') {
                     catalog = e.data.catalog;
-                    renderRemoteCatalog(catalog);
+                    filterCatalog(document.getElementById('hostSearchInput').value);
+                    filterRemoteCatalog(document.getElementById('remoteSearchInput') ? document.getElementById('remoteSearchInput').value : '');
+                } else if (e.data.type === 'SYNC_ROOM_PIN') {
+                    roomId = e.data.roomId;
+                    document.getElementById('roomIdDisplay').innerText = roomId;
                 } else if (e.data.type === 'LYRICS_UPDATE') {
                     const lyricsEl = document.getElementById('lyricsDisplay');
                     if (lyricsEl) lyricsEl.innerText = e.data.text;
                 }
             };
+
+            appChannel.postMessage({ type: 'SYNC_ROOM_PIN', roomId: roomId });
         });
 
-        // Verify Guest Room PIN before opening Remote Control
         function verifyRoomPin() {
             const pinInput = document.getElementById('authPinInput').value.trim();
             const errorEl = document.getElementById('authErrorMsg');
@@ -373,13 +385,13 @@
                 switchView('remote');
                 renderRemoteCatalog(catalog);
             } else {
-                errorEl.innerText = "Incorrect Room PIN! Please check the main TV screen.";
+                errorEl.innerText = `Incorrect PIN (${pinInput})! Target PIN is ${roomId}`;
                 errorEl.classList.remove('hidden');
             }
         }
 
         function renderQRCodes() {
-            const remoteUrl = `${window.location.origin}${window.location.pathname}?view=auth`;
+            const remoteUrl = `${window.location.origin}${window.location.pathname}?view=auth&pin=${roomId}`;
             const qrImageHtml = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(remoteUrl)}" style="width:100%; height:100%; object-fit:contain;">`;
             
             document.getElementById('headerQr').innerHTML = qrImageHtml;
@@ -411,7 +423,9 @@
 
         function filterRemoteCatalog(query) {
             const q = query.toLowerCase();
-            const filtered = catalog.filter(c => c.title.toLowerCase().includes(q) || c.artist.toLowerCase().includes(q));
+            // Filter out songs already in the room queue
+            const availableCatalog = catalog.filter(c => !tracks.some(t => t.id === c.id));
+            const filtered = availableCatalog.filter(c => c.title.toLowerCase().includes(q) || c.artist.toLowerCase().includes(q));
             renderRemoteCatalog(filtered);
         }
 
@@ -428,7 +442,7 @@
                     <button onclick="queueCatalogTrack('${item.id}')" class="btn btn-primary" style="padding: 4px 8px; font-size: 9px;">+ Add to Queue</button>
                 </div>`;
             });
-            container.innerHTML = html || '<p class="text-muted text-center" style="padding: 20px;">No matching songs found</p>';
+            container.innerHTML = html || '<p class="text-muted text-center" style="padding: 20px;">No matching available songs found</p>';
         }
 
         function setupAndroidTVRemoteSupport() {
@@ -467,6 +481,7 @@
             filterCatalog('');
         }
 
+        // Folder Upload Indexer
         async function loadBundleFolder(event) {
             const files = Array.from(event.target.files);
             if (!files.length) return;
@@ -508,32 +523,52 @@
                 });
             }
 
-            renderCatalog(catalog);
+            filterCatalog('');
             renderAlbums();
             broadcastCatalog();
-            alert(`Folder Loaded! Indexed ${catalog.length} media songs & ${localLrcFiles.size} .LRC files.`);
+            alert(`Folder Loaded! Indexed ${catalog.length} Media Songs & ${localLrcFiles.size} .LRC Files.`);
         }
 
+        // File Input Upload Engine (Auto-pairs Samename .LRC files)
         function loadPickedFiles(event) {
             const files = Array.from(event.target.files);
             if (!files.length) return;
 
-            files.forEach(file => {
-                const id = `file_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
-                localMediaFiles.set(id, file);
+            const mediaList = [];
 
-                let cleanName = file.name.substring(0, file.name.lastIndexOf('.'));
-                let artist = "LOCAL STORAGE", title = cleanName;
-                if (cleanName.includes(' - ')) {
-                    const parts = cleanName.split(' - ');
+            files.forEach(file => {
+                const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+                const baseName = file.name.substring(0, file.name.lastIndexOf('.')).toLowerCase();
+
+                if (ext === '.lrc') {
+                    localLrcFiles.set(baseName, file);
+                } else if (['.mp4', '.mkv', '.webm', '.mp3', '.wav'].includes(ext)) {
+                    mediaList.push({ baseName, file });
+                }
+            });
+
+            mediaList.forEach(item => {
+                const id = `file_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+                localMediaFiles.set(id, item.file);
+
+                let artist = "LOCAL STORAGE", title = item.baseName;
+                if (item.baseName.includes(' - ')) {
+                    const parts = item.baseName.split(' - ');
                     artist = parts[0].trim().toUpperCase();
                     title = parts.slice(1).join(' - ').trim();
                 }
 
-                catalog.push({ id, title, artist, baseName: cleanName.toLowerCase(), hasLrc: false, src: id });
+                catalog.push({
+                    id,
+                    title,
+                    artist,
+                    baseName: item.baseName,
+                    hasLrc: localLrcFiles.has(item.baseName),
+                    src: id
+                });
             });
 
-            renderCatalog(catalog);
+            filterCatalog('');
             renderAlbums();
             broadcastCatalog();
         }
@@ -604,9 +639,10 @@
                     <button onclick="queueCatalogTrack('${item.id}')" class="btn btn-primary focusable" style="padding: 4px 8px; font-size: 9px;">+ Add</button>
                 </div>`;
             });
-            container.innerHTML = html || '<p class="text-muted text-center" style="padding: 20px;">No songs loaded yet</p>';
+            container.innerHTML = html || '<p class="text-muted text-center" style="padding: 20px;">No available songs found</p>';
         }
 
+        // Compact Organized Album Grid Render
         function renderAlbums() {
             const container = document.getElementById('hostAlbumsView');
             const artists = {};
@@ -617,11 +653,11 @@
                 html += `
                 <div class="album-card focusable" onclick="filterByArtist('${artist}')">
                     <div class="album-thumb">🎤</div>
-                    <h4 style="font-size: 11px; font-weight: bold; color: #fff; margin-top: 4px;">${artist}</h4>
-                    <span class="text-muted" style="font-size: 9px;">${artists[artist]} Tracks</span>
+                    <h4 style="font-size: 10px; font-weight: bold; color: #fff; margin-top: 2px; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%;">${artist}</h4>
+                    <span class="text-muted" style="font-size: 8px;">${artists[artist]} Songs</span>
                 </div>`;
             });
-            container.innerHTML = html || '<p class="text-muted text-center" style="grid-column: span 2; padding: 20px;">No albums found</p>';
+            container.innerHTML = html || '<p class="text-muted text-center" style="grid-column: span 3; padding: 20px;">No albums found</p>';
         }
 
         function filterByArtist(artist) {
@@ -632,19 +668,28 @@
 
         function filterCatalog(query) {
             const q = query.toLowerCase();
-            const filtered = catalog.filter(c => c.title.toLowerCase().includes(q) || c.artist.toLowerCase().includes(q));
+            // Automatically clear songs from the search list if already added to the active queue
+            const availableCatalog = catalog.filter(c => !tracks.some(t => t.id === c.id));
+            const filtered = availableCatalog.filter(c => c.title.toLowerCase().includes(q) || c.artist.toLowerCase().includes(q));
             renderCatalog(filtered);
         }
 
         function queueCatalogTrack(id) {
             const item = catalog.find(c => c.id === id);
             if (!item) return;
+            
             tracks.push(item);
             renderPlaylist();
             broadcastQueue();
 
+            // Refresh search lists to instantly clear the added track
+            filterCatalog(document.getElementById('hostSearchInput').value);
+            if (document.getElementById('remoteSearchInput')) {
+                filterRemoteCatalog(document.getElementById('remoteSearchInput').value);
+            }
+
             if (document.getElementById('idleState') && !document.getElementById('idleState').classList.contains('hidden')) {
-                playTrack(id);
+                playNextTrack();
             }
         }
 
@@ -740,20 +785,39 @@
             }
         }
 
+        function stopPlayback() {
+            if (lyricsTimer) clearInterval(lyricsTimer);
+            const player = document.getElementById('drivePlayer');
+            
+            player.pause();
+            player.currentTime = 0;
+            player.removeAttribute('src');
+            player.load();
+
+            document.getElementById('idleState').classList.remove('hidden');
+            document.getElementById('scoreOverlay').classList.add('hidden');
+            document.getElementById('nowPlayingTitle').innerText = "No Track Loaded";
+            document.getElementById('nowPlayingArtist').innerText = "System Stopped";
+            document.getElementById('lyricsDisplay').innerText = "Get Ready to Sing!";
+            document.getElementById('lrcStatus').innerText = "NO LRC";
+        }
+
         function playNextTrack() {
+            if (lyricsTimer) clearInterval(lyricsTimer);
+
             if (tracks.length > 0) {
-                tracks.shift();
+                const current = tracks.shift();
                 renderPlaylist();
                 broadcastQueue();
-                if (tracks.length > 0) {
-                    playTrack(tracks[0].src);
-                } else {
-                    document.getElementById('idleState').classList.remove('hidden');
-                    document.getElementById('drivePlayer').src = '';
-                    document.getElementById('scoreOverlay').classList.add('hidden');
-                    document.getElementById('nowPlayingTitle').innerText = "No Track Loaded";
-                    document.getElementById('nowPlayingArtist').innerText = "Select folder to begin";
-                }
+                playTrack(current.src);
+            } else if (catalog.length > 0) {
+                const randomIndex = Math.floor(Math.random() * catalog.length);
+                const randomTrack = catalog[randomIndex];
+                
+                document.getElementById('nowPlayingArtist').innerText = `${randomTrack.artist} (Auto-Shuffle Jukebox)`;
+                playTrack(randomTrack.id);
+            } else {
+                stopPlayback();
             }
         }
 
@@ -839,12 +903,14 @@
             tracks.splice(index, 1);
             renderPlaylist();
             broadcastQueue();
+            filterCatalog(document.getElementById('hostSearchInput').value);
         }
 
         function clearQueue() {
             tracks = [];
             renderPlaylist();
             broadcastQueue();
+            filterCatalog(document.getElementById('hostSearchInput').value);
         }
 
         function broadcastQueue() { appChannel.postMessage({ type: 'QUEUE_UPDATE', queue: tracks }); }
@@ -872,11 +938,11 @@
                 </div>`;
             });
 
-            if (hostContainer) hostContainer.innerHTML = html || '<p class="text-muted text-center" style="padding: 20px;">Queue empty</p>';
-            if (remoteContainer) remoteContainer.innerHTML = html || '<p class="text-muted text-center" style="padding: 20px;">Queue empty</p>';
+            if (hostContainer) hostContainer.innerHTML = html || '<p class="text-muted text-center" style="padding: 20px;">Queue empty (Jukebox Active)</p>';
+            if (remoteContainer) remoteContainer.innerHTML = html || '<p class="text-muted text-center" style="padding: 20px;">Queue empty (Jukebox Active)</p>';
 
             const nextTrack = tracks[1] || null;
-            document.getElementById('stageNextTrack').innerText = nextTrack ? `${nextTrack.title} - ${nextTrack.artist}` : 'Queue is clear';
+            document.getElementById('stageNextTrack').innerText = nextTrack ? `${nextTrack.title} - ${nextTrack.artist}` : (tracks[0] ? `${tracks[0].title} - ${tracks[0].artist}` : 'Auto-Shuffle Jukebox Active');
         }
     </script>
 </body>
