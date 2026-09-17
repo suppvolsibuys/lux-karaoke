@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LUX KARAOKE PRO - Enterprise Master Edition</title>
+    <title>LUX KARAOKE PRO - Enterprise Smart System</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#05070a">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,6 +14,7 @@
         
         .glass-panel { background: rgba(15, 18, 28, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; }
+        .glass-card:hover { background: rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); }
         *:focus, .focusable:focus { outline: 3px solid #a855f7 !important; background: rgba(168, 85, 247, 0.2) !important; }
         
         header { height: 65px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; z-index: 40; border-bottom: 1px solid rgba(255,255,255,0.08); }
@@ -35,6 +36,11 @@
         .sidebar-tab { flex: 1; padding: 8px; border-radius: 8px; border: none; font-size: 11px; font-weight: bold; color: #9ca3af; background: transparent; cursor: pointer; }
         .sidebar-tab.active { background: #a855f7; color: white; }
 
+        .album-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px; overflow-y: auto; flex: 1; }
+        .album-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
+        .album-card:hover { border-color: #a855f7; background: rgba(168,85,247,0.1); }
+        .album-thumb { height: 60px; border-radius: 6px; background: linear-gradient(135deg, #4c1d95, #1e1b4b); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+
         .control-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 8px; }
         .stat-card { background: rgba(0,0,0,0.4); padding: 6px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
         .stat-val { font-size: 13px; font-weight: bold; color: #c084fc; font-family: monospace; }
@@ -54,20 +60,19 @@
 </head>
 <body>
 
-    <!-- Header Navigation -->
     <header class="glass-panel">
         <div class="logo-box">
             <div class="logo-icon">👑</div>
             <div>
                 <h1 style="font-size: 16px; font-weight: 800; letter-spacing: 1px;">LUX KARAOKE PRO</h1>
-                <p class="text-muted">Master Commercial Enterprise Suite</p>
+                <p class="text-muted">Smart Media System</p>
             </div>
         </div>
 
         <div class="nav-buttons">
             <button onclick="switchView('host')" id="nav-host" class="btn btn-active focusable">Host Console</button>
             <button onclick="switchView('stage')" id="nav-stage" class="btn focusable">Stage Monitor</button>
-            <button onclick="switchView('mixer')" id="nav-mixer" class="btn focusable">Pro Audio Mixer</button>
+            <button onclick="switchView('mixer')" id="nav-mixer" class="btn focusable">Pro Mixer</button>
             <button onclick="switchView('remote')" id="nav-remote" class="btn focusable">Remote Panel</button>
         </div>
 
@@ -81,7 +86,6 @@
         </div>
     </header>
 
-    <!-- HOST CONSOLE VIEW -->
     <main id="view-host">
         <section class="player-section">
             <div class="video-box">
@@ -89,17 +93,15 @@
                 <div id="idleState" class="text-center">
                     <div style="font-size: 44px; margin-bottom: 8px;">💿</div>
                     <h3 style="font-size: 16px; font-weight: bold;">System Ready</h3>
-                    <p class="text-muted">Load local files from HDD or select a queued song</p>
+                    <p class="text-muted">Scan a folder containing paired video (.mp4) and lyrics (.lrc) files</p>
                 </div>
 
-                <!-- Singer Pitch & Score Overlay -->
                 <div id="scoreOverlay" class="hidden" style="position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.85); border: 1px solid #a855f7; padding: 8px 16px; border-radius: 12px; text-align: center;">
                     <span style="font-size: 8px; color: #a855f7; font-weight: bold; display: block;">LIVE SCORE</span>
                     <span id="liveScore" style="font-size: 22px; font-weight: 900; color: #fff; font-family: monospace;">--</span>
                 </div>
             </div>
 
-            <!-- Playback Control Panel -->
             <div class="glass-panel" style="padding: 12px 16px; border-radius: 14px; display: flex; flex-direction: column; gap: 8px;">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <div style="display: flex; gap: 6px;">
@@ -110,17 +112,15 @@
 
                     <div class="text-center" style="flex: 1; padding: 0 12px;">
                         <h4 id="nowPlayingTitle" style="font-size: 12px; font-weight: bold;">No Track Loaded</h4>
-                        <p id="nowPlayingArtist" class="text-purple" style="font-size: 10px;">Select files to start</p>
+                        <p id="nowPlayingArtist" class="text-purple" style="font-size: 10px;">Select folder to begin</p>
                     </div>
 
                     <div style="display: flex; gap: 4px;">
                         <button onclick="playSFX('applause')" class="btn glass-card focusable">👏 Cheer</button>
                         <button onclick="playSFX('fanfare')" class="btn glass-card focusable">🎺 Fanfare</button>
-                        <button onclick="playSFX('airhorn')" class="btn glass-card focusable">📢 Horn</button>
                     </div>
                 </div>
 
-                <!-- Control Grid (Pitch, Vocal Remover, Speed [- and +]) -->
                 <div class="control-grid">
                     <div class="stat-card">
                         <div class="stat-val">
@@ -138,7 +138,6 @@
                         <div class="stat-lbl">Vocal Mode</div>
                     </div>
 
-                    <!-- Speed Control (- / +) -->
                     <div class="stat-card">
                         <div class="stat-val">
                             <button onclick="changeTempo(-0.1)" class="btn focusable" style="padding:1px 5px;">-</button> 
@@ -149,8 +148,8 @@
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-val" id="micStatus">OFF</div>
-                        <div class="stat-lbl"><button onclick="toggleMic()" class="btn focusable" style="font-size:9px; padding:2px 4px;">Mic Monitor</button></div>
+                        <div class="stat-val" id="lrcStatus">NO LRC</div>
+                        <div class="stat-lbl">Lyrics Status</div>
                     </div>
 
                     <div class="stat-card">
@@ -161,44 +160,37 @@
             </div>
         </section>
 
-        <!-- Sidebar Finder & On-Screen Touch Keyboard -->
+        <!-- Sidebar Navigation: Library, Albums & Queue -->
         <aside class="sidebar glass-panel">
             <div class="sidebar-tabs">
-                <button onclick="switchHostTab('search')" id="tab-search" class="sidebar-tab active focusable">Add Media</button>
+                <button onclick="switchHostTab('library')" id="tab-library" class="sidebar-tab active focusable">Songs</button>
+                <button onclick="switchHostTab('albums')" id="tab-albums" class="sidebar-tab focusable">Albums / Artists</button>
                 <button onclick="switchHostTab('queue')" id="tab-queue" class="sidebar-tab focusable">Queue (<span id="queueBadge">0</span>)</button>
             </div>
 
-            <div id="hostSearchView" style="padding: 12px; display: flex; flex-direction: column; gap: 8px;">
-                <input type="file" id="mediaPicker" accept="video/*,audio/*" multiple onchange="loadPickedFiles(event)" style="display: none;">
-                <input type="file" id="lrcPicker" accept=".lrc" onchange="loadLrcFile(event)" style="display: none;">
+            <!-- TAB 1: SMART SONGS LIBRARY -->
+            <div id="hostLibraryView" style="padding: 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; overflow: hidden;">
+                <!-- Auto Bundle File & Folder Scanner -->
+                <input type="file" id="bundlePicker" accept="video/*,audio/*,.lrc" multiple webkitdirectory directory onchange="loadBundleFolder(event)" style="display: none;">
                 
-                <div style="display: flex; gap: 6px;">
-                    <button onclick="document.getElementById('mediaPicker').click()" class="btn btn-primary focusable" style="flex: 1; padding: 10px;">
-                        📂 Add Media Files
-                    </button>
-                    <button onclick="document.getElementById('lrcPicker').click()" class="btn glass-card focusable" style="padding: 10px;">
-                        📜 Load .LRC Lyrics
-                    </button>
-                </div>
-
-                <button onclick="selectAndIndexFolder()" class="btn glass-card focusable" style="padding: 8px;">
-                    📁 Scan HDD Folder (Desktop Chrome/Edge)
+                <button onclick="document.getElementById('bundlePicker').click()" class="btn btn-primary focusable" style="padding: 10px;">
+                    📁 Upload Bundle Folder (Videos + .LRC Lyrics)
                 </button>
 
-                <input type="text" id="hostSearchInput" placeholder="Type Song Title or Artist..." class="focusable" style="padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 11px;">
+                <input type="text" id="hostSearchInput" placeholder="Filter Song or Artist..." oninput="filterCatalog(this.value)" class="focusable" style="padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 11px;">
 
-                <div class="osk-container">
-                    <div class="osk-key focusable" onclick="typeKey('Q')">Q</div><div class="osk-key focusable" onclick="typeKey('W')">W</div><div class="osk-key focusable" onclick="typeKey('E')">E</div><div class="osk-key focusable" onclick="typeKey('R')">R</div><div class="osk-key focusable" onclick="typeKey('T')">T</div><div class="osk-key focusable" onclick="typeKey('Y')">Y</div><div class="osk-key focusable" onclick="typeKey('U')">U</div><div class="osk-key focusable" onclick="typeKey('I')">I</div><div class="osk-key focusable" onclick="typeKey('O')">O</div><div class="osk-key focusable" onclick="typeKey('P')">P</div>
-                    <div class="osk-key focusable" onclick="typeKey('A')">A</div><div class="osk-key focusable" onclick="typeKey('S')">S</div><div class="osk-key focusable" onclick="typeKey('D')">D</div><div class="osk-key focusable" onclick="typeKey('F')">F</div><div class="osk-key focusable" onclick="typeKey('G')">G</div><div class="osk-key focusable" onclick="typeKey('H')">H</div><div class="osk-key focusable" onclick="typeKey('J')">J</div><div class="osk-key focusable" onclick="typeKey('K')">K</div><div class="osk-key focusable" onclick="typeKey('L')">L</div><div class="osk-key focusable" onclick="typeBackspace()">⌫</div>
-                    <div class="osk-key focusable" style="grid-column: span 10;" onclick="typeKey(' ')">SPACEBAR</div>
-                </div>
+                <div id="catalogList" class="track-list" style="padding: 0;"></div>
             </div>
 
+            <!-- TAB 2: SMART ALBUMS & ARTIST CATEGORIES -->
+            <div id="hostAlbumsView" class="album-grid hidden"></div>
+
+            <!-- TAB 3: LIVE ROOM QUEUE -->
             <div id="hostQueueView" class="track-list hidden"></div>
         </aside>
     </main>
 
-    <!-- PRO AUDIO MIXER VIEW -->
+    <!-- PRO AUDIO MIXER -->
     <main id="view-mixer" class="hidden" style="flex-direction: column; padding: 24px; gap: 16px;">
         <h2 style="font-size: 18px; font-weight: bold; color: #c084fc;">PRO AUDIO MIXER & VOCAL ENGINE</h2>
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
@@ -211,13 +203,13 @@
                 <input type="range" id="micGainSlider" min="0" max="1" step="0.05" value="0.7" oninput="setMicGain(this.value)" style="width: 100%;">
             </div>
             <div class="glass-panel" style="padding: 16px; border-radius: 12px;">
-                <h4 style="font-size: 12px; margin-bottom: 12px;">Vocal Center Channel Suppression</h4>
+                <h4 style="font-size: 12px; margin-bottom: 12px;">Vocal Center Suppression</h4>
                 <input type="range" id="vocalCutSlider" min="0" max="1" step="0.05" value="0" oninput="setVocalSuppression(this.value)" style="width: 100%;">
             </div>
         </div>
     </main>
 
-    <!-- STAGE DISPLAY MONITOR -->
+    <!-- STAGE MONITOR -->
     <main id="view-stage" class="hidden" style="flex-direction: column; justify-content: space-between; padding: 40px; background: #000;">
         <div>
             <span class="text-purple" style="font-size: 11px; font-weight: bold; letter-spacing: 2px;">NOW PERFORMING</span>
@@ -254,23 +246,23 @@
     </main>
 
     <script>
+        let catalog = [];
         let tracks = [];
         let localMediaFiles = new Map();
+        let localLrcFiles = new Map();
         let roomId = Math.floor(1000 + Math.random() * 9000).toString();
         let currentPitch = 0, currentSpeed = 1.0;
         
-        // Web Audio API Pipeline & LRC Lyrics Engine
         let audioCtx, mediaSourceNode, splitterNode, mergerNode, gainNodeMusic;
         let vocalModeState = 0;
         let currentLrcData = [];
         let lyricsTimer = null;
 
-        const appChannel = new BroadcastChannel('lux_karaoke_master_channel');
+        const appChannel = new BroadcastChannel('lux_karaoke_smart_channel');
 
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('roomIdDisplay').innerText = roomId;
             renderPlaylist();
-            setupKeyboardShortcuts();
 
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW:', err));
@@ -287,23 +279,69 @@
             };
         });
 
-        // Global Keyboard Hotkeys
-        function setupKeyboardShortcuts() {
-            window.addEventListener('keydown', (e) => {
-                if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
-                
-                if (e.code === 'Space') { e.preventDefault(); togglePlayPause(); }
-                else if (e.code === 'KeyN') { e.preventDefault(); playNextTrack(); }
-                else if (e.code === 'KeyR') { e.preventDefault(); restartTrack(); }
-                else if (e.code === 'ArrowUp') { e.preventDefault(); changePitch(1); }
-                else if (e.code === 'ArrowDown') { e.preventDefault(); changePitch(-1); }
+        // Smart Bundle Loader (Pairs Videos & .LRC Lyrics automatically by file name)
+        async function loadBundleFolder(event) {
+            const files = Array.from(event.target.files);
+            if (!files.length) return;
+
+            localMediaFiles.clear();
+            localLrcFiles.clear();
+            catalog = [];
+
+            // Step 1: Index LRC files and Media files
+            const mediaList = [];
+            files.forEach(file => {
+                const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+                const baseName = file.name.substring(0, file.name.lastIndexOf('.')).toLowerCase();
+
+                if (ext === '.lrc') {
+                    localLrcFiles.set(baseName, file);
+                } else if (['.mp4', '.mkv', '.webm', '.mp3', '.wav'].includes(ext)) {
+                    mediaList.push({ baseName, file, ext });
+                }
             });
+
+            // Step 2: Build smart album catalog
+            for (let item of mediaList) {
+                const id = `media_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+                localMediaFiles.set(id, item.file);
+
+                let artist = "Various Artists", title = item.baseName;
+                if (item.baseName.includes(' - ')) {
+                    const parts = item.baseName.split(' - ');
+                    artist = parts[0].trim().toUpperCase();
+                    title = parts.slice(1).join(' - ').trim();
+                }
+
+                const hasLrc = localLrcFiles.has(item.baseName);
+                
+                catalog.push({
+                    id,
+                    title,
+                    artist,
+                    baseName: item.baseName,
+                    hasLrc,
+                    src: id
+                });
+            }
+
+            renderCatalog(catalog);
+            renderAlbums();
+            alert(`Smart Bundle Loaded! Found ${catalog.length} media tracks and ${localLrcFiles.size} synced .LRC lyrics files.`);
         }
 
-        // Real-Time LRC Lyrics Parser
-        function parseLRC(lrcText) {
-            const lines = lrcText.split('\n');
-            const result = [];
+        // Parse Raw LRC Timestamp File
+        async function loadLrcForTrack(baseName) {
+            currentLrcData = [];
+            if (!localLrcFiles.has(baseName)) {
+                document.getElementById('lrcStatus').innerText = "NO LRC";
+                return;
+            }
+
+            const file = localLrcFiles.get(baseName);
+            const text = await file.text();
+            
+            const lines = text.split('\n');
             const timeRegEx = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
 
             lines.forEach(line => {
@@ -313,24 +351,16 @@
                     const seconds = parseInt(match[2], 10);
                     const milliseconds = parseInt(match[3].padEnd(3, '0'), 10);
                     const timeInSeconds = minutes * 60 + seconds + milliseconds / 1000;
-                    const text = line.replace(timeRegEx, '').trim();
-                    if (text) result.push({ time: timeInSeconds, text: text });
+                    const lyricText = line.replace(timeRegEx, '').trim();
+                    if (lyricText) currentLrcData.push({ time: timeInSeconds, text: lyricText });
                 }
             });
-            return result.sort((a, b) => a.time - b.time);
+
+            currentLrcData.sort((a, b) => a.time - b.time);
+            document.getElementById('lrcStatus').innerText = "LRC SYNCED";
         }
 
-        function loadLrcFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                currentLrcData = parseLRC(e.target.result);
-                alert(`Loaded .LRC Lyrics file successfully! (${currentLrcData.length} lines indexed)`);
-            };
-            reader.readAsText(file);
-        }
-
+        // Lyrics Broadcast Loop
         function startLyricsSync() {
             if (lyricsTimer) clearInterval(lyricsTimer);
             const player = document.getElementById('drivePlayer');
@@ -338,7 +368,7 @@
             lyricsTimer = setInterval(() => {
                 if (!player || player.paused) return;
                 const currentTime = player.currentTime;
-                let activeLine = "♪ (Instrumental / Performance) ♪";
+                let activeLine = "♪ (Performance / Music) ♪";
 
                 if (currentLrcData.length > 0) {
                     for (let i = 0; i < currentLrcData.length; i++) {
@@ -355,7 +385,96 @@
             }, 100);
         }
 
-        // Web Audio Setup for Vocal Switching & Tuning
+        // Render Media Catalog
+        function renderCatalog(items) {
+            const container = document.getElementById('catalogList');
+            let html = '';
+            items.forEach(item => {
+                html += `
+                <div class="glass-card track-item">
+                    <div style="overflow: hidden; flex: 1; margin-right: 8px;">
+                        <h4 style="font-size: 11px; font-weight: bold;">${item.title} ${item.hasLrc ? '<span style="color:#a855f7;">[LRC]</span>' : ''}</h4>
+                        <p class="text-muted">${item.artist}</p>
+                    </div>
+                    <button onclick="queueCatalogTrack('${item.id}')" class="btn btn-primary focusable" style="padding: 4px 8px; font-size: 9px;">+ Add</button>
+                </div>`;
+            });
+            container.innerHTML = html || '<p class="text-muted text-center" style="padding: 20px;">No songs loaded yet</p>';
+        }
+
+        // Render Albums & Artist Groups View
+        function renderAlbums() {
+            const container = document.getElementById('hostAlbumsView');
+            const artists = {};
+            
+            catalog.forEach(item => {
+                artists[item.artist] = (artists[item.artist] || 0) + 1;
+            });
+
+            let html = '';
+            Object.keys(artists).forEach(artist => {
+                html += `
+                <div class="album-card focusable" onclick="filterByArtist('${artist}')">
+                    <div class="album-thumb">🎤</div>
+                    <h4 style="font-size: 11px; font-weight: bold; color: #fff; margin-top: 4px;">${artist}</h4>
+                    <span class="text-muted" style="font-size: 9px;">${artists[artist]} Songs</span>
+                </div>`;
+            });
+
+            container.innerHTML = html || '<p class="text-muted text-center" style="grid-column: span 2; padding: 20px;">No albums found</p>';
+        }
+
+        function filterByArtist(artist) {
+            switchHostTab('library');
+            document.getElementById('hostSearchInput').value = artist;
+            filterCatalog(artist);
+        }
+
+        function filterCatalog(query) {
+            const q = query.toLowerCase();
+            const filtered = catalog.filter(c => c.title.toLowerCase().includes(q) || c.artist.toLowerCase().includes(q));
+            renderCatalog(filtered);
+        }
+
+        function queueCatalogTrack(id) {
+            const item = catalog.find(c => c.id === id);
+            if (!item) return;
+            tracks.push(item);
+            renderPlaylist();
+            broadcastQueue();
+
+            if (document.getElementById('idleState') && !document.getElementById('idleState').classList.contains('hidden')) {
+                playTrack(id);
+            }
+        }
+
+        async function playTrack(id) {
+            if (!localMediaFiles.has(id)) return;
+            initAudioPipeline();
+
+            document.getElementById('idleState').classList.add('hidden');
+            const item = catalog.find(c => c.id === id) || { title: 'Track', artist: 'Artist', baseName: '' };
+            const file = localMediaFiles.get(id);
+            const player = document.getElementById('drivePlayer');
+            
+            player.src = URL.createObjectURL(file);
+            player.playbackRate = currentSpeed;
+            player.play();
+
+            document.getElementById('nowPlayingTitle').innerText = item.title;
+            document.getElementById('nowPlayingArtist').innerText = item.artist;
+            document.getElementById('stageTitle').innerText = item.title;
+            document.getElementById('stageArtist').innerText = item.artist;
+
+            document.getElementById('scoreOverlay').classList.remove('hidden');
+            document.getElementById('liveScore').innerText = Math.floor(89 + Math.random() * 11);
+
+            // Auto-load matching .LRC file by name
+            await loadLrcForTrack(item.baseName);
+            startLyricsSync();
+        }
+
+        // Web Audio Pipeline
         function initAudioPipeline() {
             if (audioCtx) return;
             const videoEl = document.getElementById('drivePlayer');
@@ -405,7 +524,6 @@
             if (gainNodeMusic) gainNodeMusic.gain.value = val;
         }
 
-        // Dual-Direction Speed Adjustment (- / +)
         function changeTempo(delta) {
             currentSpeed = Math.max(0.5, Math.min(1.5, Math.round((currentSpeed + delta) * 10) / 10));
             document.getElementById('tempoDisplay').innerText = `${currentSpeed.toFixed(1)}x`;
@@ -416,106 +534,6 @@
         function changePitch(delta) {
             currentPitch += delta;
             document.getElementById('pitchDisplay').innerText = currentPitch > 0 ? `+${currentPitch}` : currentPitch;
-        }
-
-        function switchView(viewName) {
-            ['host', 'stage', 'mixer', 'remote'].forEach(v => {
-                const el = document.getElementById(`view-${v}`);
-                if (el) el.classList.toggle('hidden', v !== viewName);
-                const nav = document.getElementById(`nav-${v}`);
-                if (nav) nav.className = v === viewName ? "btn btn-active focusable" : "btn focusable";
-            });
-        }
-
-        function switchHostTab(tab) {
-            document.getElementById('hostSearchView').classList.toggle('hidden', tab !== 'search');
-            document.getElementById('hostQueueView').classList.toggle('hidden', tab !== 'queue');
-            document.getElementById('tab-search').className = tab === 'search' ? "sidebar-tab active focusable" : "sidebar-tab focusable";
-            document.getElementById('tab-queue').className = tab === 'queue' ? "sidebar-tab active focusable" : "sidebar-tab focusable";
-        }
-
-        function typeKey(char) { document.getElementById('hostSearchInput').value += char; }
-        function typeBackspace() { const i = document.getElementById('hostSearchInput'); i.value = i.value.slice(0, -1); }
-
-        function loadPickedFiles(event) {
-            const files = event.target.files;
-            if (!files) return;
-            for (let file of files) {
-                const id = `local_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
-                localMediaFiles.set(id, file);
-                let cleanName = file.name.substring(0, file.name.lastIndexOf('.'));
-                let artist = "Device File", title = cleanName;
-                if (cleanName.includes(' - ')) {
-                    const parts = cleanName.split(' - ');
-                    artist = parts[0].trim();
-                    title = parts.slice(1).join(' - ').trim();
-                }
-                tracks.push({ id, title, artist, src: id });
-            }
-            renderPlaylist();
-            broadcastQueue();
-        }
-
-        async function selectAndIndexFolder() {
-            if (!('showDirectoryPicker' in window)) {
-                alert("Folder scanning works on Chrome/Edge Desktop.");
-                return;
-            }
-            try {
-                const dirHandle = await window.showDirectoryPicker();
-                localMediaFiles.clear();
-                tracks = [];
-                for await (const entry of getFilesRecursively(dirHandle)) {
-                    if (entry.name.match(/\.(mp4|mkv|webm|mp3|wav)$/i)) {
-                        const file = await entry.getFile();
-                        const id = `hdd_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
-                        localMediaFiles.set(id, file);
-                        let cleanName = entry.name.substring(0, entry.name.lastIndexOf('.'));
-                        let artist = "Local HDD", title = cleanName;
-                        if (cleanName.includes(' - ')) {
-                            const parts = cleanName.split(' - ');
-                            artist = parts[0].trim();
-                            title = parts.slice(1).join(' - ').trim();
-                        }
-                        tracks.push({ id, title, artist, src: id });
-                    }
-                }
-                renderPlaylist();
-                broadcastQueue();
-            } catch (err) {
-                if (err.name !== 'AbortError') console.error(err);
-            }
-        }
-
-        async function* getFilesRecursively(dirHandle) {
-            for await (const entry of dirHandle.values()) {
-                if (entry.kind === 'file') yield entry;
-                else if (entry.kind === 'directory') yield* getFilesRecursively(entry);
-            }
-        }
-
-        function playTrack(id) {
-            if (!localMediaFiles.has(id)) return;
-            initAudioPipeline();
-
-            document.getElementById('idleState').classList.add('hidden');
-            const file = localMediaFiles.get(id);
-            const player = document.getElementById('drivePlayer');
-            
-            player.src = URL.createObjectURL(file);
-            player.playbackRate = currentSpeed;
-            player.play();
-
-            const current = tracks.find(t => t.src === id) || { title: file.name, artist: 'Local Media' };
-            document.getElementById('nowPlayingTitle').innerText = current.title;
-            document.getElementById('nowPlayingArtist').innerText = current.artist;
-            document.getElementById('stageTitle').innerText = current.title;
-            document.getElementById('stageArtist').innerText = current.artist;
-
-            document.getElementById('scoreOverlay').classList.remove('hidden');
-            document.getElementById('liveScore').innerText = Math.floor(89 + Math.random() * 11);
-
-            startLyricsSync();
         }
 
         function togglePlayPause() {
@@ -538,7 +556,7 @@
                     document.getElementById('drivePlayer').src = '';
                     document.getElementById('scoreOverlay').classList.add('hidden');
                     document.getElementById('nowPlayingTitle').innerText = "No Track Loaded";
-                    document.getElementById('nowPlayingArtist').innerText = "Select files to start";
+                    document.getElementById('nowPlayingArtist').innerText = "Select folder to begin";
                 }
             }
         }
@@ -559,6 +577,24 @@
             gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
             osc.start();
             osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        function switchView(viewName) {
+            ['host', 'stage', 'mixer', 'remote'].forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                if (el) el.classList.toggle('hidden', v !== viewName);
+                const nav = document.getElementById(`nav-${v}`);
+                if (nav) nav.className = v === viewName ? "btn btn-active focusable" : "btn focusable";
+            });
+        }
+
+        function switchHostTab(tab) {
+            document.getElementById('hostLibraryView').classList.toggle('hidden', tab !== 'library');
+            document.getElementById('hostAlbumsView').classList.toggle('hidden', tab !== 'albums');
+            document.getElementById('hostQueueView').classList.toggle('hidden', tab !== 'queue');
+            document.getElementById('tab-library').className = tab === 'library' ? "sidebar-tab active focusable" : "sidebar-tab focusable";
+            document.getElementById('tab-albums').className = tab === 'albums' ? "sidebar-tab active focusable" : "sidebar-tab focusable";
+            document.getElementById('tab-queue').className = tab === 'queue' ? "sidebar-tab active focusable" : "sidebar-tab focusable";
         }
 
         async function launchStageOnTV() {
@@ -609,8 +645,8 @@
                 html += `
                 <div class="glass-card track-item">
                     <div style="overflow: hidden; flex: 1; margin-right: 8px;">
-                        <h4 style="font-size: 11px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${i + 1}. ${t.title}</h4>
-                        <p class="text-muted" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.artist}</p>
+                        <h4 style="font-size: 11px; font-weight: bold;">${i + 1}. ${t.title}</h4>
+                        <p class="text-muted">${t.artist}</p>
                     </div>
                     <div style="display: flex; gap: 4px;">
                         <button onclick="playSpecificTrack(${i})" class="btn btn-primary focusable" style="padding: 3px 6px; font-size: 9px;">Play</button>
