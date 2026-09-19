@@ -37,13 +37,11 @@
         .sidebar-tab { flex: 1; padding: 8px; border-radius: 8px; border: none; font-size: 11px; font-weight: bold; color: #9ca3af; background: transparent; cursor: pointer; }
         .sidebar-tab.active { background: #a855f7; color: white; }
 
-        /* Compact Organized Album Grid */
         .album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; overflow-y: auto; flex: 1; align-content: start; }
         .album-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; transition: all 0.2s; }
         .album-card:hover { border-color: #a855f7; background: rgba(168,85,247,0.15); transform: translateY(-2px); }
         .album-thumb { width: 42px; height: 42px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #a855f7); display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 8px rgba(168,85,247,0.3); }
 
-        /* High-Visibility Interactive Control Grid */
         .control-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 8px; }
         .control-card { background: rgba(0,0,0,0.6); padding: 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; height: 58px; }
         .control-card-btn { cursor: pointer; transition: all 0.2s; }
@@ -64,6 +62,35 @@
         .osk-key { padding: 8px 0; text-align: center; background: rgba(255,255,255,0.05); border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; color: #d1d5db; }
         .osk-key:active { background: #a855f7; color: white; }
 
+        /* Hardware Pro Mixer Console Channel Strip Styling */
+        .mixer-board { display: flex; gap: 16px; flex: 1; overflow-x: auto; padding: 12px; }
+        .channel-strip { flex: 1; min-width: 170px; max-width: 220px; background: rgba(10, 12, 20, 0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .channel-title { font-size: 11px; font-weight: 900; letter-spacing: 1px; color: #c084fc; text-align: center; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; }
+        
+        /* Hardware Equalizer Rotary Knobs */
+        .eq-knob-container { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .eq-knob-label { font-size: 8px; font-weight: bold; color: #9ca3af; text-transform: uppercase; }
+        .knob-slider { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: #1f2937; outline: none; }
+        .knob-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #a855f7; cursor: pointer; border: 2px solid #fff; box-shadow: 0 0 8px rgba(168,85,247,0.6); }
+
+        /* LED VU Level Meter */
+        .vu-meter-box { height: 110px; width: 16px; background: #05070a; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column-reverse; padding: 2px; gap: 2px; margin: 0 auto; }
+        .vu-segment { flex: 1; border-radius: 1px; background: #1f2937; transition: background 0.1s; }
+        .vu-segment.green.active { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+        .vu-segment.yellow.active { background: #eab308; box-shadow: 0 0 6px #eab308; }
+        .vu-segment.red.active { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+
+        /* Smooth Vertical Channel Fader Slider */
+        .fader-wrapper { display: flex; gap: 12px; align-items: center; justify-content: center; margin-top: auto; }
+        .vertical-fader { -webkit-appearance: none; writing-mode: bt-lr; appearance: slider-vertical; width: 10px; height: 120px; background: #111827; border-radius: 4px; outline: none; }
+        .vertical-fader::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 14px; border-radius: 4px; background: linear-gradient(180deg, #d1d5db, #4b5563); cursor: pointer; border: 1px solid #1f2937; box-shadow: 0 4px 8px rgba(0,0,0,0.6); }
+
+        @keyframes lyricPop {
+            0% { transform: translateY(18px) scale(0.96); opacity: 0; filter: blur(4px); }
+            100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
+        }
+
+        .animated-lyric { animation: lyricPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; text-shadow: 0 0 20px rgba(168, 85, 247, 0.8), 0 0 40px rgba(168, 85, 247, 0.4); display: inline-block; }
         .hidden { display: none !important; }
         .text-center { text-align: center; }
         .text-purple { color: #c084fc; }
@@ -152,7 +179,6 @@
                     </div>
                 </div>
 
-                <!-- High-Visibility Interactive Control Cards -->
                 <div class="control-grid">
                     <div class="control-card">
                         <div class="stepper-box">
@@ -202,7 +228,6 @@
                 <input type="file" id="bundlePicker" accept="video/*,audio/*,.lrc" multiple webkitdirectory directory onchange="loadBundleFolder(event)" style="display: none;">
                 <input type="file" id="mediaFilePicker" accept="video/*,audio/*,.lrc" multiple onchange="loadPickedFiles(event)" style="display: none;">
 
-                <!-- Action Bar with Added Reset Library Button -->
                 <div style="display: flex; gap: 6px;">
                     <button onclick="document.getElementById('bundlePicker').click()" class="btn btn-primary focusable" style="flex: 1; padding: 10px;">
                         📁 Folder Indexer
@@ -232,43 +257,175 @@
         </aside>
     </main>
 
-    <!-- PRO AUDIO MIXER VIEW -->
-    <main id="view-mixer" class="hidden" style="flex-direction: column; padding: 24px; gap: 16px;">
-        <h2 style="font-size: 18px; font-weight: bold; color: #c084fc;">PRO AUDIO MIXER & VOCAL ENGINE</h2>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
-            <div class="glass-panel" style="padding: 16px; border-radius: 12px;">
-                <h4 style="font-size: 12px; margin-bottom: 12px;">Master Music Volume</h4>
-                <input type="range" id="musicVolSlider" min="0" max="1" step="0.05" value="0.8" oninput="setMusicVol(this.value)" style="width: 100%;">
+    <!-- EXCLUSIVE PRO HARDWARE MIXER VIEW -->
+    <main id="view-mixer" class="hidden" style="flex-direction: column; padding: 20px; gap: 16px; background: #080a12; overflow-y: auto;">
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+            <div>
+                <h2 style="font-size: 18px; font-weight: 900; color: #c084fc; letter-spacing: 1px;">STUDIO CONSOLE AUDIO MIXER</h2>
+                <p class="text-muted">Master Equalizer & Multi-Channel Mixing Board</p>
             </div>
-            <div class="glass-panel" style="padding: 16px; border-radius: 12px;">
-                <h4 style="font-size: 12px; margin-bottom: 12px;">Microphone Gain</h4>
-                <input type="range" id="micGainSlider" min="0" max="1" step="0.05" value="0.7" oninput="setMicGain(this.value)" style="width: 100%;">
+            <span style="font-size: 10px; font-family: monospace; color: #22c55e; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); padding: 4px 10px; border-radius: 6px;">DSP ACTIVE (48kHz)</span>
+        </div>
+
+        <!-- Hardware Channel Strips Board -->
+        <div class="mixer-board">
+            <!-- CH 1: MUSIC MASTER -->
+            <div class="channel-strip">
+                <div class="channel-title">CH 1 - MUSIC</div>
+                
+                <div class="eq-knob-container">
+                    <span class="eq-knob-label">HIGH (12kHz)</span>
+                    <input type="range" class="knob-slider" min="-12" max="12" value="0" oninput="setEq('music', 'high', this.value)">
+                </div>
+                <div class="eq-knob-container">
+                    <span class="eq-knob-label">MID (2.5kHz)</span>
+                    <input type="range" class="knob-slider" min="-12" max="12" value="0" oninput="setEq('music', 'mid', this.value)">
+                </div>
+                <div class="eq-knob-container">
+                    <span class="eq-knob-label">LOW (80Hz)</span>
+                    <input type="range" class="knob-slider" min="-12" max="12" value="0" oninput="setEq('music', 'low', this.value)">
+                </div>
+
+                <button onclick="toggleMute('music')" id="muteMusicBtn" class="btn glass-card" style="font-size: 9px; width: 100%;">MUTE CH1</button>
+
+                <div class="fader-wrapper">
+                    <!-- VU Level Meter -->
+                    <div class="vu-meter-box" id="vuMusic">
+                        <div class="vu-segment red"></div>
+                        <div class="vu-segment yellow"></div>
+                        <div class="vu-segment yellow"></div>
+                        <div class="vu-segment green"></div>
+                        <div class="vu-segment green"></div>
+                        <div class="vu-segment green"></div>
+                    </div>
+                    <!-- Master Fader -->
+                    <input type="range" class="vertical-fader" min="0" max="1" step="0.02" value="0.8" oninput="setMusicVol(this.value)">
+                </div>
             </div>
-            <div class="glass-panel" style="padding: 16px; border-radius: 12px;">
-                <h4 style="font-size: 12px; margin-bottom: 12px;">Vocal Center Suppression</h4>
-                <input type="range" id="vocalCutSlider" min="0" max="1" step="0.05" value="0" oninput="setVocalSuppression(this.value)" style="width: 100%;">
+
+            <!-- CH 2: MICROPHONE DSP -->
+            <div class="channel-strip">
+                <div class="channel-title">CH 2 - MIC DSP</div>
+
+                <div class="eq-knob-container">
+                    <span class="eq-knob-label">HIGH (10kHz)</span>
+                    <input type="range" class="knob-slider" min="-12" max="12" value="2" oninput="setEq('mic', 'high', this.value)">
+                </div>
+                <div class="eq-knob-container">
+                    <span class="eq-knob-label">MID (1.8kHz)</span>
+                    <input type="range" class="knob-slider" min="-12" max="12" value="-1" oninput="setEq('mic', 'mid', this.value)">
+                </div>
+                <div class="eq-knob-container">
+                    <span class="eq-knob-label">LOW (100Hz)</span>
+                    <input type="range" class="knob-slider" min="-12" max="12" value="1" oninput="setEq('mic', 'low', this.value)">
+                </div>
+
+                <button onclick="toggleMic()" id="micToggleBtn" class="btn btn-primary" style="font-size: 9px; width: 100%;">MIC OFF</button>
+
+                <div class="fader-wrapper">
+                    <div class="vu-meter-box" id="vuMic">
+                        <div class="vu-segment red"></div>
+                        <div class="vu-segment yellow"></div>
+                        <div class="vu-segment yellow"></div>
+                        <div class="vu-segment green"></div>
+                        <div class="vu-segment green"></div>
+                        <div class="vu-segment green"></div>
+                    </div>
+                    <input type="range" class="vertical-fader" min="0" max="1" step="0.02" value="0.7" oninput="setMicGain(this.value)">
+                </div>
+            </div>
+
+            <!-- CH 3: ECHO / REVERB FX -->
+            <div class="channel-strip">
+                <div class="channel-title">CH 3 - REVERB FX</div>
+
+                <div class="eq-knob-container">
+                    <span class="eq-knob-label">DECAY TIME</span>
+                    <input type="range" class="knob-slider" min="0.1" max="2.5" step="0.1" value="0.8">
+                </div>
+                <div class="eq-knob-container">
+                    <span class="eq-knob-label">ECHO FEEDBACK</span>
+                    <input type="range" class="knob-slider" min="0" max="0.8" step="0.05" value="0.3">
+                </div>
+                <div class="eq-knob-container">
+                    <span class="eq-knob-label">TONE DAMPING</span>
+                    <input type="range" class="knob-slider" min="500" max="8000" step="500" value="3000">
+                </div>
+
+                <button onclick="playSFX('applause')" class="btn glass-card" style="font-size: 9px; width: 100%;">TEST FX</button>
+
+                <div class="fader-wrapper">
+                    <div class="vu-meter-box" id="vuFx">
+                        <div class="vu-segment red"></div>
+                        <div class="vu-segment yellow"></div>
+                        <div class="vu-segment yellow"></div>
+                        <div class="vu-segment green"></div>
+                        <div class="vu-segment green"></div>
+                        <div class="vu-segment green"></div>
+                    </div>
+                    <input type="range" class="vertical-fader" min="0" max="1" step="0.02" value="0.5">
+                </div>
+            </div>
+
+            <!-- CH 4: VOCAL ISOLATION / SUPPRESSION -->
+            <div class="channel-strip">
+                <div class="channel-title">CH 4 - VOCAL CUT</div>
+
+                <div class="eq-knob-container">
+                    <span class="eq-knob-label">CENTER FREQ</span>
+                    <input type="range" class="knob-slider" min="200" max="4000" step="100" value="1000">
+                </div>
+                <div class="eq-knob-container">
+                    <span class="eq-knob-label">BANDWIDTH (Q)</span>
+                    <input type="range" class="knob-slider" min="0.5" max="5" step="0.5" value="2">
+                </div>
+                <div class="eq-knob-container">
+                    <span class="eq-knob-label">PHASE INVERT</span>
+                    <input type="range" class="knob-slider" min="0" max="1" step="1" value="1">
+                </div>
+
+                <button onclick="cycleVocalMode()" class="btn glass-card" style="font-size: 9px; width: 100%;">TOGGLE MODE</button>
+
+                <div class="fader-wrapper">
+                    <div class="vu-meter-box" id="vuVocal">
+                        <div class="vu-segment red"></div>
+                        <div class="vu-segment yellow"></div>
+                        <div class="vu-segment yellow"></div>
+                        <div class="vu-segment green"></div>
+                        <div class="vu-segment green"></div>
+                        <div class="vu-segment green"></div>
+                    </div>
+                    <input type="range" class="vertical-fader" id="vocalCutFader" min="0" max="1" step="0.02" value="0" oninput="setVocalSuppression(this.value)">
+                </div>
             </div>
         </div>
     </main>
 
     <!-- STAGE MONITOR VIEW -->
-    <main id="view-stage" class="hidden" style="flex-direction: column; justify-content: space-between; padding: 40px; background: #000;">
-        <div>
-            <span class="text-purple" style="font-size: 11px; font-weight: bold; letter-spacing: 2px;">NOW PERFORMING</span>
-            <h1 id="stageTitle" style="font-size: 32px; font-weight: 900; margin-top: 4px;">Ready on Stage</h1>
-            <p id="stageArtist" class="text-muted" style="font-size: 16px;"></p>
-        </div>
-
-        <div class="glass-panel text-center" style="padding: 40px; border-radius: 20px; margin: 20px 0;">
-            <h2 id="lyricsDisplay" style="font-size: 36px; font-weight: 900; color: #e9d5ff;">Get Ready to Sing!</h2>
-        </div>
-
-        <div class="glass-panel" style="padding: 12px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="btn btn-primary" style="font-size: 9px;">UP NEXT</span>
-                <span id="stageNextTrack" style="font-size: 13px; color: #d1d5db;">Queue is clear</span>
+    <main id="view-stage" class="hidden" style="flex-direction: column; justify-content: space-between; padding: 30px 40px; background: #000; height: 100vh;">
+        <div class="text-center" style="width: 100%;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <span style="font-size: 20px;">👑</span>
+                <h1 style="font-size: 22px; font-weight: 900; letter-spacing: 3px; background: linear-gradient(135deg, #a855f7, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">LUX KARAOKE PRO</h1>
             </div>
-            <span style="font-size: 11px; color: #a855f7; font-weight: bold;">LUX STAGE MONITOR</span>
+        </div>
+
+        <div style="text-align: center; margin-top: 10px;">
+            <span class="text-purple" style="font-size: 11px; font-weight: bold; letter-spacing: 2px;">NOW PERFORMING</span>
+            <h1 id="stageTitle" style="font-size: 34px; font-weight: 900; margin-top: 4px; color: #ffffff;">Ready on Stage</h1>
+            <p id="stageArtist" class="text-muted" style="font-size: 18px; color: #c084fc;"></p>
+        </div>
+
+        <div class="glass-panel text-center" style="padding: 40px; border-radius: 20px; margin: 10px 0; min-height: 180px; display: flex; align-items: center; justify-content: center;">
+            <h2 id="lyricsDisplay" class="animated-lyric" style="font-size: 38px; font-weight: 900; color: #f3e8ff;">Get Ready to Sing!</h2>
+        </div>
+
+        <div class="glass-panel" style="padding: 12px 20px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="btn btn-primary" style="font-size: 9px; padding: 4px 8px;">UP NEXT</span>
+                <span id="stageNextTrack" style="font-size: 13px; color: #d1d5db; font-weight: bold;">Queue is clear</span>
+            </div>
+            <span style="font-size: 11px; color: #a855f7; font-weight: bold; letter-spacing: 1px;">STAGE MONITOR</span>
         </div>
     </main>
 
@@ -344,10 +501,12 @@
         let roomId = targetPin || Math.floor(1000 + Math.random() * 9000).toString();
         
         let currentPitch = 0, currentSpeed = 1.0;
-        let audioCtx, mediaSourceNode, splitterNode, mergerNode, gainNodeMusic;
+        let audioCtx, mediaSourceNode, splitterNode, mergerNode, gainNodeMusic, micStream, micGainNode;
+        let eqNodes = { music: {}, mic: {} };
         let vocalModeState = 0;
         let currentLrcData = [];
-        let lyricsTimer = null;
+        let lyricsTimer = null, vuTimer = null;
+        let lastDisplayedLyric = "";
 
         const appChannel = new BroadcastChannel('lux_karaoke_enterprise_channel');
 
@@ -369,10 +528,14 @@
             renderQRCodes();
             renderPlaylist();
             setupAndroidTVRemoteSupport();
+            startVuMeterSimulation();
 
             if (viewParam === 'remote' || viewParam === 'auth') {
                 document.getElementById('appHeader').style.display = 'none';
                 switchView('auth');
+            } else if (viewParam === 'stage') {
+                document.getElementById('appHeader').style.display = 'none';
+                switchView('stage');
             }
 
             if ('serviceWorker' in navigator) {
@@ -400,15 +563,91 @@
                     roomId = e.data.roomId;
                     document.getElementById('roomIdDisplay').innerText = roomId;
                 } else if (e.data.type === 'LYRICS_UPDATE') {
-                    const lyricsEl = document.getElementById('lyricsDisplay');
-                    if (lyricsEl) lyricsEl.innerText = e.data.text;
+                    updateLyricDisplay(e.data.text);
                 }
             };
 
             appChannel.postMessage({ type: 'SYNC_ROOM_PIN', roomId: roomId });
         });
 
-        // Reset Library Catalog (Clears uploaded songs list, keeps active room queue intact)
+        // Simulate Hardware VU Meters when music is playing
+        function startVuMeterSimulation() {
+            if (vuTimer) clearInterval(vuTimer);
+            vuTimer = setInterval(() => {
+                const player = document.getElementById('drivePlayer');
+                const isPlaying = player && !player.paused;
+
+                ['vuMusic', 'vuMic', 'vuFx', 'vuVocal'].forEach(id => {
+                    const meter = document.getElementById(id);
+                    if (!meter) return;
+                    const segments = meter.querySelectorAll('.vu-segment');
+                    
+                    const activeCount = isPlaying ? Math.floor(Math.random() * segments.length) + 1 : 0;
+                    segments.forEach((seg, idx) => {
+                        seg.classList.toggle('active', idx < activeCount);
+                    });
+                });
+            }, 120);
+        }
+
+        // Hardware Equalizer DSP Control
+        function setEq(channel, band, val) {
+            initAudioPipeline();
+            if (eqNodes[channel] && eqNodes[channel][band]) {
+                eqNodes[channel][band].gain.value = parseFloat(val);
+            }
+        }
+
+        function toggleMute(channel) {
+            if (!audioCtx) initAudioPipeline();
+            if (channel === 'music') {
+                const isMuted = gainNodeMusic.gain.value === 0;
+                gainNodeMusic.gain.value = isMuted ? 0.8 : 0;
+                document.getElementById('muteMusicBtn').innerText = isMuted ? "MUTE CH1" : "UNMUTE CH1";
+            }
+        }
+
+        async function toggleMic() {
+            const btn = document.getElementById('micToggleBtn');
+            if (!micStream) {
+                try {
+                    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    initAudioPipeline();
+                    const micSource = audioCtx.createMediaStreamSource(micStream);
+                    micGainNode = audioCtx.createGain();
+                    micGainNode.gain.value = 0.7;
+                    micSource.connect(micGainNode);
+                    micGainNode.connect(audioCtx.destination);
+                    btn.innerText = "MIC ACTIVE";
+                    btn.className = "btn btn-danger";
+                } catch(e) {
+                    alert("Microphone permission denied or unavailable.");
+                }
+            } else {
+                micStream.getTracks().forEach(t => t.stop());
+                micStream = null;
+                btn.innerText = "MIC OFF";
+                btn.className = "btn btn-primary";
+            }
+        }
+
+        function setMicGain(val) {
+            if (micGainNode) micGainNode.gain.value = parseFloat(val);
+        }
+
+        function updateLyricDisplay(text) {
+            const lyricsEl = document.getElementById('lyricsDisplay');
+            if (!lyricsEl) return;
+
+            if (lastDisplayedLyric !== text) {
+                lastDisplayedLyric = text;
+                lyricsEl.innerText = text;
+                lyricsEl.classList.remove('animated-lyric');
+                void lyricsEl.offsetWidth;
+                lyricsEl.classList.add('animated-lyric');
+            }
+        }
+
         function resetLibraryCatalog() {
             if (catalog.length === 0) return;
             if (confirm("Reset song catalog list? This will clear the uploaded songs list so you can upload a new folder. Currently queued songs will remain in the playlist.")) {
@@ -666,7 +905,7 @@
                     }
                 }
 
-                document.getElementById('lyricsDisplay').innerText = activeLine;
+                updateLyricDisplay(activeLine);
                 appChannel.postMessage({ type: 'LYRICS_UPDATE', text: activeLine });
             }, 100);
         }
@@ -776,10 +1015,20 @@
             mergerNode = audioCtx.createChannelMerger(2);
             gainNodeMusic = audioCtx.createGain();
 
+            // Setup Music Channel EQ Nodes
+            eqNodes.music.low = audioCtx.createBiquadFilter(); eqNodes.music.low.type = 'lowshelf'; eqNodes.music.low.frequency.value = 80;
+            eqNodes.music.mid = audioCtx.createBiquadFilter(); eqNodes.music.mid.type = 'peaking'; eqNodes.music.mid.frequency.value = 2500;
+            eqNodes.music.high = audioCtx.createBiquadFilter(); eqNodes.music.high.type = 'highshelf'; eqNodes.music.high.frequency.value = 12000;
+
             mediaSourceNode.connect(splitterNode);
             splitterNode.connect(mergerNode, 0, 0);
             splitterNode.connect(mergerNode, 1, 1);
-            mergerNode.connect(gainNodeMusic);
+            
+            mergerNode.connect(eqNodes.music.low);
+            eqNodes.music.low.connect(eqNodes.music.mid);
+            eqNodes.music.mid.connect(eqNodes.music.high);
+            eqNodes.music.high.connect(gainNodeMusic);
+
             gainNodeMusic.connect(audioCtx.destination);
         }
 
@@ -810,6 +1059,8 @@
         function setVocalSuppression(amount) {
             if (!audioCtx) initAudioPipeline();
             gainNodeMusic.gain.value = 1.0 - (amount * 0.3);
+            const fader = document.getElementById('vocalCutFader');
+            if (fader) fader.value = amount;
         }
 
         function setMusicVol(val) { if (gainNodeMusic) gainNodeMusic.gain.value = val; }
@@ -912,14 +1163,14 @@
                     const screenDetails = await window.getScreenDetails();
                     const tvScreen = screenDetails.screens.find(s => !s.isPrimary);
                     if (tvScreen) {
-                        const win = window.open(window.location.href, 'StageWindow', `left=${tvScreen.left},top=${tvScreen.top},width=${tvScreen.width},height=${tvScreen.height}`);
-                        win.addEventListener('load', () => win.switchView('stage'));
+                        const stageUrl = `${window.location.origin}${window.location.pathname}?view=stage`;
+                        const win = window.open(stageUrl, 'StageWindow', `left=${tvScreen.left},top=${tvScreen.top},width=${tvScreen.width},height=${tvScreen.height}`);
                         return;
                     }
                 } catch(e) {}
             }
-            const win = window.open(window.location.href, 'StageWindow', 'width=1280,height=720');
-            win.addEventListener('load', () => win.switchView('stage'));
+            const stageUrl = `${window.location.origin}${window.location.pathname}?view=stage`;
+            window.open(stageUrl, 'StageWindow', 'width=1280,height=720');
         }
 
         function moveTrackUp(index) {
